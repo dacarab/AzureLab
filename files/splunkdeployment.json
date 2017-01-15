@@ -1,0 +1,422 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_standalone_vm_adminPassword": {
+            "defaultValue": null,
+            "type": "SecureString"
+        },
+        "extensions_node_setup_protectedSettings": {
+            "defaultValue": null,
+            "type": "SecureObject"
+        },
+        "availabilitySets_splunkVnet_aset0_name": {
+            "defaultValue": "splunkVnet-aset0",
+            "type": "String"
+        },
+        "virtualMachines_standalone_vm_name": {
+            "defaultValue": "standalone-vm",
+            "type": "String"
+        },
+        "networkInterfaces_standalone_nic_name": {
+            "defaultValue": "standalone-nic",
+            "type": "String"
+        },
+        "networkSecurityGroups_standalone_nsg_name": {
+            "defaultValue": "standalone-nsg",
+            "type": "String"
+        },
+        "publicIPAddresses_splunkIP_name": {
+            "defaultValue": "splunkIP",
+            "type": "String"
+        },
+        "virtualNetworks_splunkVnet_name": {
+            "defaultValue": "splunkVnet",
+            "type": "String"
+        },
+        "storageAccounts_wpp63rayofieisplunk0_name": {
+            "defaultValue": "wpp63rayofieisplunk0",
+            "type": "String"
+        },
+        "extensions_node_setup_name": {
+            "defaultValue": "standalone-vm/node-setup",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Compute/availabilitySets/splunkVnet-aset0'.",
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[parameters('availabilitySets_splunkVnet_aset0_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "uksouth",
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 3
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Compute/virtualMachines/standalone-vm'.",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_standalone_vm_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "uksouth",
+            "plan": {
+                "name": "splunk-on-ubuntu-14-04-lts",
+                "product": "splunk-enterprise-base-image",
+                "publisher": "splunk"
+            },
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_splunkVnet_aset0_name'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "Standard_F4s"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "splunk",
+                        "offer": "splunk-enterprise-base-image",
+                        "sku": "splunk-on-ubuntu-14-04-lts",
+                        "version": "1.0.9"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-osdisk.vhd'))]"
+                        },
+                        "caching": "ReadWrite"
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "datadisk1",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk1.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 1,
+                            "name": "datadisk2",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk2.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 2,
+                            "name": "datadisk3",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk3.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 3,
+                            "name": "datadisk4",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk4.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 4,
+                            "name": "datadisk5",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk5.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 5,
+                            "name": "datadisk6",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk6.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 6,
+                            "name": "datadisk7",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk7.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 7,
+                            "name": "datadisk8",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('https', '://', parameters('storageAccounts_wpp63rayofieisplunk0_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_standalone_vm_name'),'-datadisk8.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_standalone_vm_name')]",
+                    "adminUsername": "SplunkVM",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    },
+                    "secrets": [],
+                    "adminPassword": "[parameters('virtualMachines_standalone_vm_adminPassword')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_standalone_nic_name'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_splunkVnet_aset0_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_wpp63rayofieisplunk0_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_standalone_nic_name'))]"
+            ]
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Network/networkInterfaces/standalone-nic'.",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_standalone_nic_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "uksouth",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Static",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_splunkIP_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_splunkVnet_name')), '/subnets/shsubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_standalone_nsg_name'))]"
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_splunkIP_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_splunkVnet_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_standalone_nsg_name'))]"
+            ]
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Network/networkSecurityGroups/standalone-nsg'.",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_standalone_nsg_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "uksouth",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Allow-SSH",
+                        "properties": {
+                            "description": "Allows SSH traffic",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "82.26.67.107/32",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Allow-HTTP",
+                        "properties": {
+                            "description": "Allows HTTP traffic on port 8000",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8000",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Allow-HTTPS",
+                        "properties": {
+                            "description": "Allows HTTPS traffic on port 443",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Allow-HTTP-Event-Collector",
+                        "properties": {
+                            "description": "Allows HTTP(S) Event Collector traffic on port 8088",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8088",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Allow-Receiver-TCP",
+                        "properties": {
+                            "description": "Allows receiver TCP traffic on port 9997",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "9997",
+                            "sourceAddressPrefix": "82.26.67.107/32",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 140,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Allow-Mgmt-From-VNET",
+                        "properties": {
+                            "description": "Allows mgmt on port 8089 from VNET only",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8089",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 150,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Network/publicIPAddresses/splunkIP'.",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIPAddresses_splunkIP_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "uksouth",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "splunkdomain"
+                }
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Network/virtualNetworks/splunkVnet'.",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_splunkVnet_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "uksouth",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "shsubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    },
+                    {
+                        "name": "idxsubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/splunkrg/providers/Microsoft.Storage/storageAccounts/wpp63rayofieisplunk0'.",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storageAccounts_wpp63rayofieisplunk0_name')]",
+            "apiVersion": "2016-01-01",
+            "location": "uksouth",
+            "tags": {},
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/f4a4040f-1f28-4c55-ae0c-b14ad0f38a87/resourceGroups/SplunkRG/providers/Microsoft.Compute/virtualMachines/standalone-vm/extensions/node-setup'.",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[parameters('extensions_node_setup_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "uksouth",
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "https://gallery.azure.com/artifact/20151001/splunk.splunk-enterprisebyol.1.0.13/Artifacts/scripts/vm-disk-utils-0.1.sh",
+                        "https://gallery.azure.com/artifact/20151001/splunk.splunk-enterprisebyol.1.0.13/Artifacts/scripts/node-setup.sh"
+                    ]
+                },
+                "protectedSettings": "[parameters('extensions_node_setup_protectedSettings')]"
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_standalone_vm_name'))]"
+            ]
+        }
+    ]
+}

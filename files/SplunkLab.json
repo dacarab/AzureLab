@@ -15,7 +15,7 @@
           },
           "niWinName": {
                "type": "string",
-               "defaultValue": "Windows01",
+               "defaultValue": "niWindows01",
                "minLength": 1
           },
           "piWinDnsName": {
@@ -47,21 +47,12 @@
           },
           "vmLinName": {
                "type": "string",
-               "defaultValue": "linux01",
+               "defaultValue": "splunk01",
                "minLength": 1
-          },
-          "vmLinUbuntuOSVersion": {
-               "type": "string",
-               "defaultValue": "16.04.0-LTS",
-               "allowedValues": [
-                    "12.04.5-LTS",
-                    "14.04.2-LTS",
-                    "16.04.0-LTS"
-               ]
           },
          "piLinDnsName": {
              "type": "string",
-             "defaultValue": "dc0432lin",
+             "defaultValue": "ab0432lin",
              "minLength": 1
          }
      },
@@ -81,6 +72,7 @@
           "vmWinNicName": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
           "vmLinImagePublisher": "Canonical",
           "vmLinImageOffer": "UbuntuServer",
+          "vmLinName": "splunk_server",
           "vmLinOSDiskName": "vmLinOSDisk",
           "vmLinVmSize": "Standard_A0",
           "vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
@@ -259,60 +251,13 @@
                }
           },
           {
-               "name": "[parameters('vmLinName')]",
-               "type": "Microsoft.Compute/virtualMachines",
-               "location": "[resourceGroup().location]",
-               "apiVersion": "2015-06-15",
-               "dependsOn": [
-                    "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
-                    "[concat('Microsoft.Network/networkInterfaces/', variables('vmLinNicName'))]"
-               ],
-               "tags": {
-                    "displayName": "Linux Virtual Machine"
-               },
-               "properties": {
-                    "hardwareProfile": {
-                         "vmSize": "[variables('vmLinVmSize')]"
-                    },
-                    "osProfile": {
-                         "computerName": "[parameters('vmLinName')]",
-                         "adminUsername": "[parameters('admin')]",
-                         "adminPassword": "[parameters('adminPassword')]"
-                    },
-                    "storageProfile": {
-                         "imageReference": {
-                              "publisher": "[variables('vmLinImagePublisher')]",
-                              "offer": "[variables('vmLinImageOffer')]",
-                              "sku": "[parameters('vmLinUbuntuOSVersion')]",
-                              "version": "latest"
-                         },
-                         "osDisk": {
-                              "name": "vmLinOSDisk",
-                              "vhd": {
-                                   "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'), '.vhd')]"
-                              },
-                              "caching": "ReadWrite",
-                              "createOption": "FromImage"
-                         }
-                    },
-                    "networkProfile": {
-                         "networkInterfaces": [
-                              {
-                                   "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
-                              }
-                         ]
-                    }
-               },
-               "resources": []
-          },
-          {
                "name": "[variables('piLinName')]",
                "type": "Microsoft.Network/publicIPAddresses",
                "location": "[resourceGroup().location]",
                "apiVersion": "2015-06-15",
                "dependsOn": [ ],
                "tags": {
-                    "displayName": "Public IP for Linux Box"
+                    "displayName": "Public IP for Splunk Box"
                },
                "properties": {
                     "publicIPAllocationMethod": "Dynamic",
@@ -347,7 +292,150 @@
                          }
                     ]
                }
-          }
+          },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('vmLinName')]",
+            "apiVersion": "2015-06-15",
+            "location": "uksouth",
+            "plan": {
+                "name": "splunk-on-ubuntu-14-04-lts",
+                "product": "splunk-enterprise-base-image",
+                "publisher": "splunk"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_F4s"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "splunk",
+                        "offer": "splunk-enterprise-base-image",
+                        "sku": "splunk-on-ubuntu-14-04-lts",
+                        "version": "1.0.9"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'), '.vhd')]"
+                        },
+                        "caching": "ReadWrite"
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "datadisk1",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk1.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 1,
+                            "name": "datadisk2",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk2.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 2,
+                            "name": "datadisk3",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk3.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 3,
+                            "name": "datadisk4",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk4.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 4,
+                            "name": "datadisk5",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk5.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 5,
+                            "name": "datadisk6",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk6.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 6,
+                            "name": "datadisk7",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk7.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        },
+                        {
+                            "lun": 7,
+                            "name": "datadisk8",
+                            "createOption": "Empty",
+                            "vhd": {
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk8.vhd'))]"
+                            },
+                            "caching": "ReadOnly",
+                            "diskSizeGB": 1023
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vmLinName')]",
+                    "adminUsername": "[parameters('admin')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    },
+                    "secrets": [],
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('saLabName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
+            ],
+            "tags": {
+                    "displayName": "Splunk Virtual Machine"
+               }
+        }
+
+
+
+
+
      ],
      "outputs": {
      }
