@@ -30,6 +30,7 @@
           },
           "admin": {
                "type": "string",
+               "defaultValue": "crapmin",
                "minLength": 1
           },
           "adminPassword": {
@@ -72,7 +73,6 @@
           "vmWinNicName": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
           "vmLinImagePublisher": "Canonical",
           "vmLinImageOffer": "UbuntuServer",
-          "vmLinName": "splunk_server",
           "vmLinOSDiskName": "vmLinOSDisk",
           "vmLinVmSize": "Standard_A0",
           "vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
@@ -172,51 +172,51 @@
                }
           },
           {
-               "name": "[parameters('vmWinName')]",
-               "type": "Microsoft.Compute/virtualMachines",
-               "location": "[resourceGroup().location]",
-               "apiVersion": "2015-06-15",
-               "dependsOn": [
-                    "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
-                    "[concat('Microsoft.Network/networkInterfaces/', variables('vmWinNicName'))]"
-               ],
-               "tags": {
-                    "displayName": "Windows Virtual Machine"
-               },
-               "properties": {
-                    "hardwareProfile": {
-                         "vmSize": "[variables('vmWinVmSize')]"
-                    },
-                    "osProfile": {
-                         "computerName": "[parameters('vmWinName')]",
-                         "adminUsername": "[parameters('admin')]",
-                         "adminPassword": "[parameters('adminPassword')]"
-                    },
-                    "storageProfile": {
-                         "imageReference": {
-                              "publisher": "[variables('vmWinImagePublisher')]",
-                              "offer": "[variables('vmWinImageOffer')]",
-                              "sku": "[parameters('vmWinWindowsOSVersion')]",
-                              "version": "latest"
-                         },
-                         "osDisk": {
-                              "name": "vmWinOSDisk",
-                              "vhd": {
-                                   "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmWinStorageAccountContainerName'), '/', variables('vmWinOSDiskName'), '.vhd')]"
-                              },
-                              "caching": "ReadWrite",
-                              "createOption": "FromImage"
-                         }
-                    },
-                    "networkProfile": {
-                         "networkInterfaces": [
-                              {
-                                   "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmWinNicName'))]"
-                              }
-                         ]
-                    }
-               },
-               "resources": []
+            "name": "[parameters('vmWinName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [
+              "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
+              "[concat('Microsoft.Network/networkInterfaces/', variables('vmWinNicName'))]"
+            ],
+            "tags": {
+              "displayName": "Windows Virtual Machine"
+            },
+            "properties": {
+              "hardwareProfile": {
+                "vmSize": "[variables('vmWinVmSize')]"
+              },
+              "osProfile": {
+                "computerName": "[parameters('vmWinName')]",
+                "adminUsername": "[parameters('admin')]",
+                "adminPassword": "[parameters('adminPassword')]"
+              },
+              "storageProfile": {
+                "imageReference": {
+                  "publisher": "[variables('vmWinImagePublisher')]",
+                  "offer": "[variables('vmWinImageOffer')]",
+                  "sku": "[parameters('vmWinWindowsOSVersion')]",
+                  "version": "latest"
+                },
+                "osDisk": {
+                  "name": "vmWinOSDisk",
+                  "vhd": {
+                    "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmWinStorageAccountContainerName'), '/', variables('vmWinOSDiskName'), '.vhd')]"
+                  },
+                  "caching": "ReadWrite",
+                  "createOption": "FromImage"
+                }
+              },
+              "networkProfile": {
+                "networkInterfaces": [
+                  {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmWinNicName'))]"
+                  }
+                ]
+              }
+            },
+            "resources": []
           },
           {
                "name": "[variables('vmLinNicName')]",
@@ -295,7 +295,7 @@
           },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "name": "[variables('vmLinName')]",
+            "name": "[parameters('vmLinName')]",
             "apiVersion": "2015-06-15",
             "location": "uksouth",
             "plan": {
@@ -305,7 +305,7 @@
             },
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_F4s"
+                    "vmSize": "Standard_A2"
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -328,7 +328,7 @@
                             "name": "datadisk1",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk1.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk1.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -338,7 +338,7 @@
                             "name": "datadisk2",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk2.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk2.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -348,7 +348,7 @@
                             "name": "datadisk3",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk3.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk3.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -358,7 +358,7 @@
                             "name": "datadisk4",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk4.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk4.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -368,7 +368,7 @@
                             "name": "datadisk5",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk5.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk5.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -378,7 +378,7 @@
                             "name": "datadisk6",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk6.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk6.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -388,7 +388,7 @@
                             "name": "datadisk7",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk7.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk7.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
@@ -398,7 +398,7 @@
                             "name": "datadisk8",
                             "createOption": "Empty",
                             "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk8.vhd'))]"
+                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk8.vhd')]"
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
