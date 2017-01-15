@@ -1,0 +1,354 @@
+{
+     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+     "contentVersion": "1.0.0.0",
+     "parameters": {
+          "saLabType": {
+               "type": "string",
+               "defaultValue": "Standard_LRS",
+               "allowedValues": [
+                    "Standard_LRS",
+                    "Standard_ZRS",
+                    "Standard_GRS",
+                    "Standard_RAGRS",
+                    "Premium_LRS"
+               ]
+          },
+          "niWinName": {
+               "type": "string",
+               "defaultValue": "Windows01",
+               "minLength": 1
+          },
+          "piWinDnsName": {
+               "type": "string",
+               "defaultValue": "dc0432win",
+               "minLength": 1
+          },
+          "vmWinName": {
+               "type": "string",
+               "defaultValue": "windows01",
+               "minLength": 1
+          },
+          "admin": {
+               "type": "string",
+               "minLength": 1
+          },
+          "adminPassword": {
+               "type": "securestring"
+          },
+          "vmWinWindowsOSVersion": {
+               "type": "string",
+               "defaultValue": "2012-R2-Datacenter",
+               "allowedValues": [
+                    "2008-R2-SP1",
+                    "2012-Datacenter",
+                    "2012-R2-Datacenter",
+                    "Windows-Server-Technical-Preview"
+               ]
+          },
+          "vmLinName": {
+               "type": "string",
+               "defaultValue": "linux01",
+               "minLength": 1
+          },
+          "vmLinUbuntuOSVersion": {
+               "type": "string",
+               "defaultValue": "16.04.0-LTS",
+               "allowedValues": [
+                    "12.04.5-LTS",
+                    "14.04.2-LTS",
+                    "16.04.0-LTS"
+               ]
+          },
+         "piLinDnsName": {
+             "type": "string",
+             "defaultValue": "dc0432lin",
+             "minLength": 1
+         }
+     },
+     "variables": {
+          "vnLabPrefix": "10.255.255.0/24",
+          "vnLabSubnetName": "Subnet1",
+          "vnLabSubnetPrefix": "10.255.255.240/28",
+          "saLabName": "[concat('salab', uniqueString(resourceGroup().id))]",
+          "piWinName": "piWin",
+          "vmWinImagePublisher": "MicrosoftWindowsServer",
+          "vmWinImageOffer": "WindowsServer",
+          "vmWinOSDiskName": "vmWinOSDisk",
+          "vmWinVmSize": "Standard_A0",
+          "vmWinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
+          "vmWinSubnetRef": "[concat(variables('vmWinVnetID'), '/subnets/', variables('vnLabSubnetName'))]",
+          "vmWinStorageAccountContainerName": "vhds",
+          "vmWinNicName": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
+          "vmLinImagePublisher": "Canonical",
+          "vmLinImageOffer": "UbuntuServer",
+          "vmLinOSDiskName": "vmLinOSDisk",
+          "vmLinVmSize": "Standard_A0",
+          "vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
+          "vmLinSubnetRef": "[concat(variables('vmLinVnetID'), '/subnets/', variables('vnLabSubnetName'))]",
+          "vmLinStorageAccountContainerName": "vhds",
+          "vmLinNicName": "[concat(parameters('vmLinName'), 'NetworkInterface')]",
+          "piLinName": "piLin",
+          "nsLab": "sgLab"
+     },
+     "resources": [
+          {
+               "name": "vnLab",
+               "type": "Microsoft.Network/virtualNetworks",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [ 
+                   "[concat('Microsoft.Network/networkSecurityGroups/',variables('nsLab'))]"
+               ],
+               "tags": {
+                    "displayName": "Virtual Network for Chef Lab"
+               },
+               "properties": {
+                    "addressSpace": {
+                         "addressPrefixes": [
+                              "[variables('vnLabPrefix')]"
+                         ]
+                    },
+                    "subnets": [
+                         {
+                              "name": "[variables('vnLabSubnetName')]",
+                              "properties": {
+                                   "addressPrefix": "[variables('vnLabSubnetPrefix')]",
+                                   "networkSecurityGroup": {
+                                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsLab'))]"
+                                   }
+                              }
+                         }
+                    ]
+               }
+          },
+          {
+               "name": "[variables('saLabName')]",
+               "type": "Microsoft.Storage/storageAccounts",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [ ],
+               "tags": {
+                    "displayName": "Storage Account for Lab VMs"
+               },
+               "properties": {
+                    "accountType": "[parameters('saLabType')]"
+               }
+          },
+          {
+               "name": "[variables('piWinName')]",
+               "type": "Microsoft.Network/publicIPAddresses",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [ ],
+               "tags": {
+                    "displayName": "Public IP for Windows VM"
+               },
+               "properties": {
+                    "publicIPAllocationMethod": "Dynamic",
+                    "dnsSettings": {
+                         "domainNameLabel": "[parameters('piWinDnsName')]"
+                    }
+               }
+          },
+          {
+               "name": "[variables('vmWinNicName')]",
+               "type": "Microsoft.Network/networkInterfaces",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [
+                    "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
+                    "[concat('Microsoft.Network/publicIPAddresses/',variables('piWinName'))]"
+               ],
+               "tags": {
+                    "displayName": "Virtual Nic for Windows VM"
+               },
+               "properties": {
+                    "ipConfigurations": [
+                         {
+                              "name": "ipconfig1",
+                              "properties": {
+                                   "privateIPAllocationMethod": "Dynamic",
+                                   "subnet": {
+                                        "id": "[variables('vmWinSubnetRef')]"
+                                   },
+                                   "publicIPAddress": {
+                                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('piWinName'))]"
+                                   }
+                              }
+                         }
+                    ]
+               }
+          },
+          {
+               "name": "[parameters('vmWinName')]",
+               "type": "Microsoft.Compute/virtualMachines",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [
+                    "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
+                    "[concat('Microsoft.Network/networkInterfaces/', variables('vmWinNicName'))]"
+               ],
+               "tags": {
+                    "displayName": "Windows Virtual Machine"
+               },
+               "properties": {
+                    "hardwareProfile": {
+                         "vmSize": "[variables('vmWinVmSize')]"
+                    },
+                    "osProfile": {
+                         "computerName": "[parameters('vmWinName')]",
+                         "adminUsername": "[parameters('admin')]",
+                         "adminPassword": "[parameters('adminPassword')]"
+                    },
+                    "storageProfile": {
+                         "imageReference": {
+                              "publisher": "[variables('vmWinImagePublisher')]",
+                              "offer": "[variables('vmWinImageOffer')]",
+                              "sku": "[parameters('vmWinWindowsOSVersion')]",
+                              "version": "latest"
+                         },
+                         "osDisk": {
+                              "name": "vmWinOSDisk",
+                              "vhd": {
+                                   "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmWinStorageAccountContainerName'), '/', variables('vmWinOSDiskName'), '.vhd')]"
+                              },
+                              "caching": "ReadWrite",
+                              "createOption": "FromImage"
+                         }
+                    },
+                    "networkProfile": {
+                         "networkInterfaces": [
+                              {
+                                   "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmWinNicName'))]"
+                              }
+                         ]
+                    }
+               },
+               "resources": []
+          },
+          {
+               "name": "[variables('vmLinNicName')]",
+               "type": "Microsoft.Network/networkInterfaces",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [
+                    "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
+                    "[concat('Microsoft.Network/publicIPAddresses/', variables('piLinName'))]"
+               ],
+               "tags": {
+                    "displayName": "Virtual Nic for Linux VM"
+               },
+               "properties": {
+                    "ipConfigurations": [
+                         {
+                              "name": "ipconfig1",
+                              "properties": {
+                                   "privateIPAllocationMethod": "Dynamic",
+                                   "subnet": {
+                                        "id": "[variables('vmLinSubnetRef')]",
+                                        "publicIPAddress": {
+                                             "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'piLinName')]"
+                                        }
+                                   },
+                                  "publicIPAddress": {
+                                      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('piLinName'))]"
+                                  }
+                              }
+                         }
+                    ]
+               }
+          },
+          {
+               "name": "[parameters('vmLinName')]",
+               "type": "Microsoft.Compute/virtualMachines",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [
+                    "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
+                    "[concat('Microsoft.Network/networkInterfaces/', variables('vmLinNicName'))]"
+               ],
+               "tags": {
+                    "displayName": "Linux Virtual Machine"
+               },
+               "properties": {
+                    "hardwareProfile": {
+                         "vmSize": "[variables('vmLinVmSize')]"
+                    },
+                    "osProfile": {
+                         "computerName": "[parameters('vmLinName')]",
+                         "adminUsername": "[parameters('admin')]",
+                         "adminPassword": "[parameters('adminPassword')]"
+                    },
+                    "storageProfile": {
+                         "imageReference": {
+                              "publisher": "[variables('vmLinImagePublisher')]",
+                              "offer": "[variables('vmLinImageOffer')]",
+                              "sku": "[parameters('vmLinUbuntuOSVersion')]",
+                              "version": "latest"
+                         },
+                         "osDisk": {
+                              "name": "vmLinOSDisk",
+                              "vhd": {
+                                   "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'), '.vhd')]"
+                              },
+                              "caching": "ReadWrite",
+                              "createOption": "FromImage"
+                         }
+                    },
+                    "networkProfile": {
+                         "networkInterfaces": [
+                              {
+                                   "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
+                              }
+                         ]
+                    }
+               },
+               "resources": []
+          },
+          {
+               "name": "[variables('piLinName')]",
+               "type": "Microsoft.Network/publicIPAddresses",
+               "location": "[resourceGroup().location]",
+               "apiVersion": "2015-06-15",
+               "dependsOn": [ ],
+               "tags": {
+                    "displayName": "Public IP for Linux Box"
+               },
+               "properties": {
+                    "publicIPAllocationMethod": "Dynamic",
+                    "dnsSettings": {
+                         "domainNameLabel": "[parameters('piLinDnsName')]"
+                    }
+               }
+          },
+          {
+               "apiVersion": "2015-06-15",
+               "type": "Microsoft.Network/networkSecurityGroups",
+               "name": "[variables('nsLab')]",
+               "location": "[resourceGroup().location]",
+               "tags": {
+                    "displayName": "Network Security Group"
+               },
+               "properties": {
+                    "securityRules": [
+                         {
+                              "name": "rdp-rule",
+                              "properties": {
+                                   "description": "Allow RDP",
+                                   "protocol": "Tcp",
+                                   "sourcePortRange": "*",
+                                   "destinationPortRange": "3389",
+                                   "sourceAddressPrefix": "Internet",
+                                   "destinationAddressPrefix": "*",
+                                   "access": "Allow",
+                                   "priority": 100,
+                                   "direction": "Inbound"
+                              }
+                         }
+                    ]
+               }
+          }
+     ],
+     "outputs": {
+     }
+}
