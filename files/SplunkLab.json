@@ -362,46 +362,6 @@
                             },
                             "caching": "ReadOnly",
                             "diskSizeGB": 1023
-                        },
-                        {
-                            "lun": 4,
-                            "name": "datadisk5",
-                            "createOption": "Empty",
-                            "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk5.vhd')]"
-                            },
-                            "caching": "ReadOnly",
-                            "diskSizeGB": 1023
-                        },
-                        {
-                            "lun": 5,
-                            "name": "datadisk6",
-                            "createOption": "Empty",
-                            "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk6.vhd')]"
-                            },
-                            "caching": "ReadOnly",
-                            "diskSizeGB": 1023
-                        },
-                        {
-                            "lun": 6,
-                            "name": "datadisk7",
-                            "createOption": "Empty",
-                            "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk7.vhd')]"
-                            },
-                            "caching": "ReadOnly",
-                            "diskSizeGB": 1023
-                        },
-                        {
-                            "lun": 7,
-                            "name": "datadisk8",
-                            "createOption": "Empty",
-                            "vhd": {
-                                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk8.vhd')]"
-                            },
-                            "caching": "ReadOnly",
-                            "diskSizeGB": 1023
                         }
                     ]
                 },
