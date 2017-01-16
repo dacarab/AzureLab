@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe "Set-SplunkLabConfig" {
+Describe "Set-AzureLabConfig" {
     Context Input {
         It -pending "Accepts parameters in the correct format" {
 

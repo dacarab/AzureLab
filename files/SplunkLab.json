@@ -36,6 +36,10 @@
     "adminPassword": {
       "type": "securestring"
     },
+    "ssh_remoteIP": {
+      "type": "string",
+      "defaultValue": "82.26.67.107/32"
+    },
     "vmWinWindowsOSVersion": {
       "type": "string",
       "defaultValue": "2012-R2-Datacenter",
@@ -81,6 +85,8 @@
     "vmLinNicName": "[concat(parameters('vmLinName'), 'NetworkInterface')]",
     "piLinName": "piLin",
     "nsLab": "sgLab",
+    "scriptUrl": "https://deploysa.blob.core.windows.net/scripts/splunk_setup.sh",
+    "commandToExecute": "sh splunk_setup.sh",
     "extensions_node_setup_name": "[concat(parameters('vmLinName'), '/node-setup')]"
   },
   "resources": [{
@@ -282,9 +288,9 @@
             }
           },
           {
-            "name": "Allow-SSH",
+            "name": "Allow-SSH-Internal",
             "properties": {
-              "description": "Allows SSH traffic",
+              "description": "Allows SSH traffic from Azure vnet",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
@@ -292,6 +298,20 @@
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+                    {
+            "name": "Allow-SSH-External",
+            "properties": {
+              "description": "Allows SSH traffic from Azure vnet",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[parameters('ssh_remoteip')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 170,
               "direction": "Inbound"
             }
           },
@@ -475,9 +495,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://gallery.azure.com/artifact/20151001/splunk.splunk-enterprisebyol.1.0.13/Artifacts/scripts/vm-disk-utils-0.1.sh",
-            "https://gallery.azure.com/artifact/20151001/splunk.splunk-enterprisebyol.1.0.13/Artifacts/scripts/node-setup.sh"
-          ]
+            "[variables('scriptUrl')]"
+          ],
+          "commandToExecute": "[variables('commandToExecute')]"
         }
       },
       "resources": [],

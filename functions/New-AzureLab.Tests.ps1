@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe "New-SplunkLab" {
+Describe "New-AzureLab" {
     Context "Input" {
         It "should not accept more than 61 chars for ResourceGroup" {
             $longParam = "61616161616161616161616161616161616161616161616161616161616161"

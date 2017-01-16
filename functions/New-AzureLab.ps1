@@ -1,4 +1,4 @@
-﻿function New-SplunkLab {
+﻿function New-AzureLab {
   [CmdletBinding()]
   param(
     [ValidateLength(1,61)]

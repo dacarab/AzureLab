@@ -1,4 +1,4 @@
-﻿function Set-SplunkLabConfig {
+﻿function Set-AzureLabConfig {
 
   # Generate DSC paramter object
 
