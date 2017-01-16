@@ -33,7 +33,7 @@
       "defaultValue": "crapmin",
       "minLength": 1
     },
-    "adminPassword": {
+    "labPassword": {
       "type": "securestring"
     },
     "ssh_remoteIP": {
@@ -192,7 +192,7 @@
         "osProfile": {
           "computerName": "[parameters('vmWinName')]",
           "adminUsername": "[parameters('admin')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('labPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -466,7 +466,7 @@
             "disablePasswordAuthentication": false
           },
           "secrets": [],
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('labPassword')]"
         },
         "networkProfile": {
           "networkInterfaces": [{

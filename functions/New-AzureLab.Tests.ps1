@@ -6,7 +6,7 @@ Describe "New-AzureLab" {
     Context "Input" {
         It "should not accept more than 61 chars for ResourceGroup" {
             $longParam = "61616161616161616161616161616161616161616161616161616161616161"
-            {New-SplunkLab -ResourceGroup $longParam} | should throw
+            {New-SplunkLab -LabName $longParam} | should throw
         }
 
         It -pending "should not accept non-alphanumeric other than hyphen and underscore" {
@@ -15,8 +15,17 @@ Describe "New-AzureLab" {
     }
 
     Context Execution {
-        It -Pending "Processes the passed inputs correctly" {
+        It -Pending "Creates the required ResourceGroup if it does not exist" {
 
+        }
+
+        It -Pending "Does not throw if the ResourceGroup already exists" {
+
+        }
+
+        It -Pending "does not throw when called" {
+            $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
+            {New-AzureLab -LabName TestLab -AzureLocation UKSouth -LabPassword $password} | Should not throw
         }
 
     }
