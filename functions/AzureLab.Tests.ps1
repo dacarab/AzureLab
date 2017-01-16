@@ -65,3 +65,24 @@ Describe "New-AzureLab" {
 
     }
 }
+
+Describe "Remove-AzureLab" {
+    Context Input {
+        It -Pending "accepts valid parameters" {
+
+        }
+    }
+
+    Context Execution {
+        It -Pending "does not throw"  {
+            New-AzureRmResourceGroup -Name PesterTest -Location UKSouth -Tag @{AutoLab=$true} | Out-Null
+            {Remove-AzureLab -LabName PesterTest} | Should Not throw
+        }
+    }
+
+    Context Output {
+
+
+    }
+
+}

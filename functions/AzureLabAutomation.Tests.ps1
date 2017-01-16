@@ -6,7 +6,7 @@ Describe "Initialize-AzureLabAutomation" {
     Context Inputs {
         $labNameCases = @(
             @{
-                LabName = "61616161616161616161616161616161616161616161616161616161616161"
+                LabName = "62626262626262626262626262626262626262626262626262626262626262"
                 TestScenario = "throws if input longer than 61 characters"
             },
             @{
