@@ -76,16 +76,29 @@ Describe "New-AzureLab" {
 }
 
 Describe "Remove-AzureLab" {
+    # TestCases
+    $labNameCases = @(
+        @{
+            testLabName = "61616161616161616161616161616161616161616161616161616161616161"
+            TestScenario = "throws if input longer than 61 characters"
+        },
+        @{
+            testLabName = '$Wibbler'
+            TestScenario = "throws if input contains a $ sign"
+        }
+    )
     Context Input {
-        It -Pending "accepts valid parameters" {
-
+        It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
+            {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
+                should throw "Cannot validate argument on parameter"
         }
     }
 
     Context Execution {
-        It -Pending "does not throw"  {
-            New-AzureRmResourceGroup -Name PesterTest -Location UKSouth -Tag @{AutoLab=$true} | Out-Null
-            {Remove-AzureLab -LabName PesterTest} | Should Not throw
+        It "does not remove Resource Groups without the AutoLab tag set to $true" {
+          Mock -CommandName  Remove-AzureRmResourceGroup -MockWith {
+            
+          }
         }
     }
 
