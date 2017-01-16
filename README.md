@@ -36,8 +36,11 @@ Used to define a csv file containing a list of users to provision within AD. Thi
 Another parameter that requires additional thought. It will be useful to provision an SMB share within the lab, and may even something that is done as part of the deployment to enable customization of the environment. Will be a *Switch*  parameter.
 
 ####Example Syntax
-New-SplunkLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare
+New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare
 
+###Set-AzureLabConfig
+Function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage. 
 
-
+####Example Syntax 
+Set-AzureLabConfig -LabName [string] -DSCFile [string] 
 
