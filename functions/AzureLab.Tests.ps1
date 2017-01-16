@@ -3,6 +3,20 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
 Describe "New-AzureLab" {
+
+    # Parameter Variables
+    $labName = "PesterTest"
+    $azureLocation = "UKSouth"
+    $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
+
+    # Mocks
+    Mock -CommandName New-AzureRmResourceGroupDeployment  -MockWith {
+        #TODO - Return data
+    } 
+    Mock -CommandName New-AzureRmResourceGroup -Verifiable -MockWith {
+        #TODO - Return Data
+    } 
+
     Context "Input" {
         # TestCases
         $labNameCases = @(
@@ -17,15 +31,7 @@ Describe "New-AzureLab" {
         )
 
         # Parameter Variables
-        $labName = "PesterTest"
-        $azureLocation = "UKSouth"
         $badAzureLocation = "Biggleswade"
-        $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
-
-        # Mocks 
-        Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
-            #TODO - Return data
-        }
 
         It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
             {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
@@ -38,26 +44,29 @@ Describe "New-AzureLab" {
         }
 
         It "does not accept invalid Azure regions as input for AzureLocation" {
-            {New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password} |
+            {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
                 should throw "Cannot validate argument on parameter"
         }
-
     }
 
     Context Execution {
-        It -Pending "Creates the required ResourceGroup if it does not exist" {
+        It "Does not re-create ResourceGroup if already exists" {
+            Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
+                $true
+            }
 
+            New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password
+            Assert-MockCalled New-AzureRmResourceGroup -times 0
         }
 
-        It -Pending "Does not throw if the ResourceGroup already exists" {
+        It "Creates the required ResourceGroup if it does not exist" {
+            Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
+                $false
+            }
 
-        }
-
-        It -Pending "does not throw when called" {
-            $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
-            {New-AzureLab -LabName TestLab -AzureLocation UKSouth -LabPassword $password} | Should not throw
-        }
-
+            New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password
+            Assert-MockCalled New-AzureRmResourceGroup -Times 1
+        }        
     }
 
     Context Output {

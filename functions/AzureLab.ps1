@@ -34,22 +34,16 @@
       }
       # Create ResourceGroup if required
       If (!(Get-AzureRmResourceGroup -Name $LabName)) {
-        $LabResourceGroup = New-AzureRmResourceGroup -Name "$LabName" -Location $AzureLocation
+        $LabResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation
       }
       # Deploy the template
-      New-AzureRmResourceGroupDeployment -ResourceGroupName $LabResourceGroup.ResourceGroupName -TemplateParameterObject $deploymentHash -TemplateFile .\files\SplunkLab.json
+      New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $deploymentHash -TemplateFile .\files\SplunkLab.json
 
       # TODO: Return a PSCustomObject that represents the end state of the objects deployed
   }
 }
 
-
-<#
-  Remove-AzureLab -LabName 
-#>
-
-
-function Remove-AzureLab {
+Function Remove-AzureLab {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory)]
