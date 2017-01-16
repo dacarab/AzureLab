@@ -4,14 +4,44 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe "New-AzureLab" {
     Context "Input" {
-        It "should not accept more than 61 chars for ResourceGroup" {
-            $longParam = "61616161616161616161616161616161616161616161616161616161616161"
-            {New-SplunkLab -LabName $longParam} | should throw
+        # TestCases
+        $labNameCases = @(
+            @{
+                testLabName = "61616161616161616161616161616161616161616161616161616161616161"
+                TestScenario = "throws if input longer than 61 characters"
+            },
+            @{
+                testLabName = '$Wibbler'
+                TestScenario = "throws if input contains a $ sign"
+            }
+        )
+
+        # Parameter Variables
+        $labName = "PesterTest"
+        $azureLocation = "UKSouth"
+        $badAzureLocation = "Biggleswade"
+        $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
+
+        # Mocks 
+        Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
+            #TODO - Return data
         }
 
-        It -pending "should not accept non-alphanumeric other than hyphen and underscore" {
-
+        It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
+            {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
+                should throw "Cannot validate argument on parameter"
         }
+
+        It "accepts existing Azure regions as input for AzureLocation" {
+            {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
+                should throw "Cannot validate argument on parameter"
+        }
+
+        It "does not accept invalid Azure regions as input for AzureLocation" {
+            {New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password} |
+                should throw "Cannot validate argument on parameter"
+        }
+
     }
 
     Context Execution {

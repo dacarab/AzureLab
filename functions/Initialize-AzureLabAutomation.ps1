@@ -3,14 +3,14 @@
   Function to configure an automation account to configure lab machines, and upload DSC Configs
 
   Expected Syntax:
-  Initialize-AzureLabAutomation -LabName SplunkLab -DSCSourceFolder Folder -Location UKSouth
+  Initialize-AzureLabAutomation -LabName SplunkLab -DSCSourceFolder Folder
 
 #>
   [cmdletbinding()]
   param(
     [string]$LabName,
-    [string]$DSCSourceFolder,
-    [string]$Location
+    [ValidateScript({Test-Path $_ -PathType Container})]
+    [string]$DSCSourceFolder
   )
 
   #TODO: Check if automation account exists.

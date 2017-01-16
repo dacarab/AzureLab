@@ -10,7 +10,7 @@ Describe "Remove-AzureLab" {
     }
 
     Context Execution {
-        It "does not throw"  {
+        It -Pending "does not throw"  {
             New-AzureRmResourceGroup -Name PesterTest -Location UKSouth -Tag @{AutoLab=$true} | Out-Null
             {Remove-AzureLab -LabName PesterTest} | Should Not throw
         }

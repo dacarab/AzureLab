@@ -4,21 +4,36 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe "Initialize-AzureLabAutomation" {
     Context Inputs {
-        It -Pending "takes an appropriately formated LabName"{
+        $labNameCases = @(
+            @{
+                LabName = "61616161616161616161616161616161616161616161616161616161616161"
+                TestScenario = "throws if input longer than 61 characters"
+            },
+            @{
+                LabName = '$Wibbler'
+                TestScenario = "throws if input contains a $ sign"
+            }
+        )
 
+        $dscSourceFolderCases = @(
+            @{
+                testDSCSourceFolder = "C:\AMadeUpFolderName"
+                TestScenario = "throws if folder does not exist"
+            }
+        )
+
+        It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
+            {Initialize-AzureLabAutomation -LabName $LabName} | should throw "Cannot validate argument on parameter"
         }
 
-        It -Pending "throws custom error if DSCSourceFolder is inaccessible" {
-
+        It "accepts valid input for DSCSourceFolder: <TestScenario>" -TestCases $dscSourceFolderCases {
+            {Initialize-AzureLabAutomation -LabName "TestLab" -DSCSourceFolder $testDSCSourceFolder} | Should throw "Cannot validate argument on parameter"
         }
 
-        It -Pending "only accepts valid AzureLocations" {
-
-        }
     }
 
     Context Execution {
-        It -Pending "initiates Add-AzureAccount if not connected to Azure" {
+        It -Pending "throws if not connected to Azure ARM" {
 
         }
 
