@@ -1,11 +1,12 @@
-﻿function Initialize-AzureLabAutomation {
-<#
+﻿<#
   Function to configure an automation account to configure lab machines, and upload DSC Configs
 
   Expected Syntax:
   Initialize-AzureLabAutomation -LabName SplunkLab -DSCSourceFolder Folder
 
 #>
+
+Function New-AzureLabAutomation {
   [cmdletbinding()]
   param(
     [string]$LabName,
@@ -13,13 +14,25 @@
     [string]$DSCSourceFolder
   )
 
-  #TODO: Check if automation account exists.
+  # Check if automation account exists.
 
-  #Create Automation Account
-  $LabAutomationAccount = New-AzureRmAutomationAccount -Name $LabName -Location $Location -ResourceGroupName $LabName -Plan Free 
+  # Create Automation Account
+  $LabAutomationAccount = New-AzureRmAutomationAccount -Name $LabName -Location $Location -ResourceGroupName $LabName -Plan Free -Tags
 
-  #TODO: Upload DSC config files
+  # Upload DSC config files
 
-  #TODO: Return object detailing end state of automation config
+  # Return object detailing end state of automation config
+
+}
+
+Function Remove-AzureLabAutomation {
+
+}
+
+Function Helper_NewBlockStorage {
+
+}
+
+Function Helper_UploadFiles {
 
 }

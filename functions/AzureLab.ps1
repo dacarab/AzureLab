@@ -1,4 +1,4 @@
-﻿function New-AzureLab {
+﻿Function New-AzureLab {
   [CmdletBinding()]
   param(
     [ValidateLength(1,61)]
@@ -46,6 +46,8 @@
 Function Remove-AzureLab {
   [CmdletBinding()]
   param(
+    [ValidateLength(1,61)]
+    [ValidatePattern("[a-zA-Z0-9_-]")]
     [Parameter(Mandatory)]
     [string]$LabName
   )

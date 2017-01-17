@@ -7,3 +7,7 @@
     And I guess a desktop that I can use from within the environment to do the do. 
 #>
 
+# Dotsource all the script files from functions folder that are not pester tests
+get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
+
+

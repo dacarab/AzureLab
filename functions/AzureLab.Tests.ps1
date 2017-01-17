@@ -103,7 +103,7 @@ Describe "Remove-AzureLab" {
     }
 
     Context Output {
-
+        It -Pending "Returns the proper type"
 
     }
 
