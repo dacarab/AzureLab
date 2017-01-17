@@ -9,18 +9,7 @@
   )
     # Block to ensure only valid AzureLocations are selected
     DynamicParam {
-      $locations = Get-AzureRmLocation | Select-Object -ExpandProperty Location
-
-      $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-
-      $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-      $paramAttributes.Add((New-Object Parameter))
-      $paramAttributes.Add((New-Object ValidateSet $locations))
-      
-      $parameterName = "AzureLocation"
-      $paramDictionary[$parameterName] = New-Object System.Management.Automation.RuntimeDefinedParameter ($parameterName, [string[]], $paramAttributes)
-
-      Return $paramDictionary
+      Helper_DynamicParamAzureLocation
     }
 
     Begin {}
