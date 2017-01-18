@@ -74,52 +74,83 @@ Describe "New-AzureLab" {
 }
 
 Describe "Remove-AzureLab" {
-    # TestCases
-    $labNameCases = @(
-        @{
-            testLabName = "61616161616161616161616161616161616161616161616161616161616161"
-            TestScenario = "throws if input longer than 61 characters"
-        },
-        @{
-            testLabName = '$Wibbler'
-            TestScenario = "throws if input contains a $ sign"
-        }
-    )
-    Context Input {
-        It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
-            {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
-                should throw "Cannot validate argument on parameter"
-        }
-    }
+  # TestCases
+  $labNameCases = @(
+      @{
+          testLabName = "61616161616161616161616161616161616161616161616161616161616161"
+          TestScenario = "throws if input longer than 61 characters"
+      },
+      @{
+          testLabName = '$Wibbler'
+          TestScenario = "throws if input contains a $ sign"
+      }
+  )
 
-    Context Execution {
-        Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-            $returnData = @{
-                ResourceGroupName = "RemoveLabTest"
-                Tags = @{
-                    AutoLab = "RemoveLabTest"
-                }
+  # Describe Block Variables
+  $LabName = "RemoveLabTest"
+  $returnData = @{
+    ResourceGroupName = "RemoveLabTest"
+    Tags = @{
+      AutoLab = "RemoveLabTest"
+    }
+  }
+
+  # Remove-AzureLab Describe Block Mocks
+  Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Return [PSCustomObject]$returnData
+  }
+
+  Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
+    Return $true
+  } -ParameterFilter {$LabName -eq $LabName}
+
+  Context Input {
+    It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
+      {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
+        should throw "Cannot validate argument on parameter"
+    }
+  }
+
+  Context Execution {
+    It "should remove a specified Resource Group" {
+        $returnData = @{
+            ResourceGroupName = $LabName
+            Tags = @{
+                AutoLab = $LabName
             }
-            Return [PSCustomObject]$returnData
         }
-        Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
-            Return $true
-        } 
-
-        It "should remove a specified Resource Group" {
-            Remove-AzureLab -LabName "RemoveLabTest" 
-            Assert-MockCalled Remove-AzureRmResourceGroup -Times 1
-        }
-        It -Pending "should throw if the specified Resource Group does not exist" {
-
-        }
-        It -Pending "should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
-        }
+        Remove-AzureLab -LabName $LabName
+        Assert-MockCalled Remove-AzureRmResourceGroup -Times 1
     }
 
-    Context Output {
-        It -Pending "Returns the proper type"
+    It "should throw if the specified Resource Group does not exist" {
+        $LabName = "DoesNotExist"
+        $returnData = $null
+        {Remove-AzureLab -LabName $LabName} |
+          Should throw "Cannot remove Resource Group $LabName - it does not exist."
+    }
+    
+    It "should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
+        $returnData = @{
+                ResourceGroupName = $LabName
+                Tags = @{}
+        }
+        {Remove-AzureLab -LabName $LabName} |
+            Should throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+    }
+  }
 
+  Context Output {
+    It "Returns $false if ResourceGroup does exist after remove attempt" {
+    Remove-AzureLab -LabName $LabName | Should be $false
+      Assert-VerifiableMocks
     }
 
+    It "should return $true if ResourceGroup does not exist after remove attempted" {
+      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+        Return $Null
+      } -ParameterFilter {$Name -and $Name -eq $LabName} 
+      Remove-AzureLab -LabName "$LabName" | Should Be $true
+    }
+  }
 }

@@ -1,22 +1,34 @@
-#AzureLab Module ReadMe
+# AzureLab Module ReadMe
+
 This module is intended to allow quick and easy deployment to Azure of a splunk lab for testing. In time, it is expected that it will provide functionality to provision labs tailored to other specific testing scenarios on Azure.
 
-##Initial Problem Statement
+## Initial Problem Statement
+
 > I'm looking to develop some Splunk apps that would monitor and alert on a domain,as well as #nix stuff.
 > So Splunk on ubuntu is fine... but would need a domain controller to pull data from, and experiment with audit policy.
 > A couple of member servers for the same.
-> A few scrips that crete a bunch of users and groups.
+> A few scrips that create a bunch of users and groups.
 > A few scripts that make changes on a periodic basis that I can report and alert against .
-> And I guess a desktop that I can use from within the environment to do the do. 
 
-##Module Overview
-A bare minimum of functionality required is one line provisioning / de-provisioning of the lab. 
+## Module Overview
 
-##Functions
-###New-AzureLab###
+A bare minimum of functionality required is one line provisioning / de-provisioning of the lab.
+
+* Minimum Viable Product Pass: **In Progress**
+* Sanity Check Pass:            *Not Started*
+* Write-Verbose Pass:           *Not Started*
+* Documentation Pass:           *Not Started*
+* Pester Testing Review:        *Not Started*
+
+
+## Functions
+
+### New-AzureLab
+
 Essentially a public function that the user will call, that accepts customization of the desired Lab through parameterization.
 
-####Parameters
+#### Parameters
+
 **-Name**
 The name of the lab - this will also define the ResourceGroup to create in Azure, and be used to generate some of the names for underlying resources e.g. storage accounts etc. Takes *String* input.
 
@@ -35,12 +47,15 @@ Used to define a csv file containing a list of users to provision within AD. Thi
 **-ProvisionSMBShare**
 Another parameter that requires additional thought. It will be useful to provision an SMB share within the lab, and may even something that is done as part of the deployment to enable customization of the environment. Will be a *Switch*  parameter.
 
-####Example Syntax
+#### Example Syntax
+
 New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare
 
-###Set-AzureLabConfig
+### Set-AzureLabConfig
+
 Function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage. 
 
-####Example Syntax 
+#### Example Syntax
+
 Set-AzureLabConfig -LabName [string] -DSCFile [string] 
 

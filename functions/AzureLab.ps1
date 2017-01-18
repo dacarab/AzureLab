@@ -42,14 +42,32 @@ Function Remove-AzureLab {
   )
 
   # Get the resource group
+  Write-Verbose "Checking ResourceGroup Exists:"
   $labRG = Get-AzureRmResourceGroup | Where-Object ResourceGroupName -eq $LabName
-
-  if ($labRG.Tags.AutoLab -eq $LabName) {
-    Write-Verbose "Remove     AzureRMResourceGroup $LabName"
-    Remove-AzureRmResourceGroup -Name $LabName -Force
+  Write-Verbose "Get          AzureRmResourceGroup returns $labRg"
+  If ($labRG) {
+    if ($labRG.Tags.AutoLab -eq $LabName) {
+      Write-Verbose "Remove         AzureRMResourceGroup $LabName"
+      Remove-AzureRmResourceGroup -Name $LabName -Force | Out-Null
+    }
+    Else {
+      Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+    }
   }
   Else {
-    Write-Error "Cannot remove Resource Group $labRG - it does not exist."
+    Throw "Cannot remove Resource Group $LabName - it does not exist."
   }
-  
+
+  # Adding ErrorAction param to enable targeted mocking in Pester tests
+  Write-Verbose "Checking Resource Group Removed:"
+  $r = Get-AzureRmResourceGroup -Name $LabName
+  Write-Debug "`$r = $r"
+  if (!($r)) {
+    Write-Verbose "Get          AzureRmResourceGroup $Labname returns nothing"
+    Return $true
+  }
+  Else {
+    Write-Verbose "Get          AzureRmResourceGroup $Labname returns $r"
+    Return $false
+  }
 }
