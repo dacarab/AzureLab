@@ -15,7 +15,11 @@ Function Helper_DynamicParamAzureLocation {
   $locations = Get-AzureRmLocation | Select-Object -ExpandProperty Location
   $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
   $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-  $paramAttributes.Add((New-Object Parameter))
+  $parameterAttribute = New-Object Parameter 
+  $parameterAttribute.Mandatory = $true
+  $parameterAttribute.ParameterSetName = "Default"
+  $parameterAttribute.Position = 1
+  $paramAttributes.Add($parameterAttribute)
   $paramAttributes.Add((New-Object ValidateSet $locations))
   $parameterName = "AzureLocation"
   $paramDictionary[$parameterName] = New-Object System.Management.Automation.RuntimeDefinedParameter ($parameterName, [string[]], $paramAttributes)

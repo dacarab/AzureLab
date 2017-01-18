@@ -34,14 +34,6 @@ Function Remove-AzureLabAutomation {
 
 }
 
-Function Helper_NewBlockStorage {
-
-}
-
-Function Helper_UpDSCloadFiles {
-
-}
-
 Function Helper_NewAutomationAccount {
   [CmdletBinding()]
   param(
@@ -61,4 +53,12 @@ Function Helper_NewAutomationAccount {
   }
 
   Return $automationAccount
+}
+
+Function Helper_NewBlockStorage {
+
+}
+
+Function Helper_UpDSCloadFiles {
+
 }

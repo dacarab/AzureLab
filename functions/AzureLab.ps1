@@ -4,6 +4,8 @@
     [ValidateLength(1,61)]
     [ValidatePattern("[a-zA-Z0-9_-]")]
     [string]$LabName,
+    [ValidateSet("Splunk")]
+    [string]$LabType,
     [Parameter(Mandatory)]
     [securestring]$LabPassword
   )
@@ -12,23 +14,32 @@
       Helper_DynamicParamAzureLocation
     }
 
-    Begin {}
+  End {
+    $AzureLocation = $($PSBoundParameters.AzureLocation)
+    # Set-up the relevant parameters to pass to the template
+    $deploymentHash = @{
+      labPassword = $LabPassword
+    }
+    # Create ResourceGroup if required
+    Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
+    $getRGResults = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get          AzureRmResourceGroup returns $getRGResults"
 
-    Process {}
+    If (!$getRGResults) {
+      Write-Verbose "New          AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}"
+      $labResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}
+      Write-Verbose "New          AzureRmResourceGroup returns $labResourceGroup"
+    }
 
-    End {
-      # TODO: Set-up the relevant parameters to pass to the template
-      $deploymentHash = @{
-        labPassword = $LabPassword
-      }
-      # Create ResourceGroup if required
-      If (!(Get-AzureRmResourceGroup -Name $LabName)) {
-        $LabResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation
-      }
-      # Deploy the template
-      New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $deploymentHash -TemplateFile .\files\SplunkLab.json
+    # Deploy the template
+    New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $deploymentHash -TemplateFile .\files\SplunkLab.json
 
-      # TODO: Return a PSCustomObject that represents the end state of the objects deployed
+    # TODO: Return a PSCustomObject that represents the end state of the objects deployed
+    $returnData = @{
+      ResourceGroup = $labResourceGroup
+    }
+
+    Return $returnData
   }
 }
 
@@ -58,9 +69,9 @@ Function Remove-AzureLab {
     Throw "Cannot remove Resource Group $LabName - it does not exist."
   }
 
-  # Adding ErrorAction param to enable targeted mocking in Pester tests
+  # Adding Name param to enable targeted mocking in Pester tests
   Write-Verbose "Checking Resource Group Removed:"
-  $r = Get-AzureRmResourceGroup -Name $LabName
+  $r = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
   Write-Debug "`$r = $r"
   if (!($r)) {
     Write-Verbose "Get          AzureRmResourceGroup $Labname returns nothing"
