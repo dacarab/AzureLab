@@ -54,7 +54,6 @@ Describe "New-AzureLab" {
             Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
                 $true
             }
-
             New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password
             Assert-MockCalled New-AzureRmResourceGroup -times 0
         }
@@ -63,7 +62,6 @@ Describe "New-AzureLab" {
             Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
                 $false
             }
-
             New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password
             Assert-MockCalled New-AzureRmResourceGroup -Times 1
         }        
@@ -95,10 +93,27 @@ Describe "Remove-AzureLab" {
     }
 
     Context Execution {
-        It "does not remove Resource Groups without the AutoLab tag set to $true" {
-          Mock -CommandName  Remove-AzureRmResourceGroup -MockWith {
-            
-          }
+        Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+            $returnData = @{
+                ResourceGroupName = "RemoveLabTest"
+                Tags = @{
+                    AutoLab = "RemoveLabTest"
+                }
+            }
+            Return [PSCustomObject]$returnData
+        }
+        Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
+            Return $true
+        } 
+
+        It "should remove a specified Resource Group" {
+            Remove-AzureLab -LabName "RemoveLabTest" 
+            Assert-MockCalled Remove-AzureRmResourceGroup -Times 1
+        }
+        It -Pending "should throw if the specified Resource Group does not exist" {
+
+        }
+        It -Pending "should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
         }
     }
 

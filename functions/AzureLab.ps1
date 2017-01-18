@@ -42,11 +42,14 @@ Function Remove-AzureLab {
   )
 
   # Get the resource group
-  $labRG = Get-AzureRmResourceGroup -Name $LabName
+  $labRG = Get-AzureRmResourceGroup | Where-Object ResourceGroupName -eq $LabName
 
-  if ($labRG.Tags.AutoLab -eq $true) {
+  if ($labRG.Tags.AutoLab -eq $LabName) {
+    Write-Verbose "Remove     AzureRMResourceGroup $LabName"
     Remove-AzureRmResourceGroup -Name $LabName -Force
   }
-
+  Else {
+    Write-Error "Cannot remove Resource Group $labRG - it does not exist."
+  }
   
 }

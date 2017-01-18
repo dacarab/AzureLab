@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe "Initialize-AzureLabAutomation" {
+Describe "New-AzureLabAutomation" {
     Context Inputs {
         $labNameCases = @(
             @{
@@ -23,11 +23,11 @@ Describe "Initialize-AzureLabAutomation" {
         )
 
         It "accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
-            {Initialize-AzureLabAutomation -LabName $LabName} | should throw "Cannot validate argument on parameter"
+            {New-AzureLabAutomation -LabName $LabName} | should throw "Cannot validate argument on parameter"
         }
 
         It "accepts valid input for DSCSourceFolder: <TestScenario>" -TestCases $dscSourceFolderCases {
-            {Initialize-AzureLabAutomation -LabName "TestLab" -DSCSourceFolder $testDSCSourceFolder} | Should throw "Cannot validate argument on parameter"
+            {New-AzureLabAutomation -LabName "TestLab" -DSCSourceFolder $testDSCSourceFolder} | Should throw "Cannot validate argument on parameter"
         }
 
     }
