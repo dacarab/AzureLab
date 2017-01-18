@@ -20,7 +20,6 @@ A bare minimum of functionality required is one line provisioning / de-provision
 * Documentation Pass:           *Not Started*
 * Pester Testing Review:        *Not Started*
 
-
 ## Functions
 
 ### New-AzureLab
@@ -47,15 +46,14 @@ Used to define a csv file containing a list of users to provision within AD. Thi
 **-ProvisionSMBShare**
 Another parameter that requires additional thought. It will be useful to provision an SMB share within the lab, and may even something that is done as part of the deployment to enable customization of the environment. Will be a *Switch*  parameter.
 
-#### Example Syntax
+#### Example New-AzureLab Syntax
 
 New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare
 
 ### Set-AzureLabConfig
 
-Function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage. 
+Function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage.
 
-#### Example Syntax
+#### Example Set-AzureLab Syntax
 
-Set-AzureLabConfig -LabName [string] -DSCFile [string] 
-
+Set-AzureLabConfig -LabName [string] -DSCFile [string]
