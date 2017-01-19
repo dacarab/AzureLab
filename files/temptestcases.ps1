@@ -1,64 +1,64 @@
 $newLab_Input_TestCases_Fail = @(
   @{
-    Scenario = "LabName - does not accept input longer than 61 chars"
-    Error = "Cannot validate argument on parameter 'LabName'"
+    scenario = "LabName - does not accept input longer than 61 chars"
+    expected = "Cannot validate argument on parameter 'LabName'"
     labName = "62626262626262626262626262626262626262626262626262626262626262"
     labtype = "Splunk"
-    AzureLocation = "UKSouth"
-    LabPassword = $password
+    azureLocation = "UKSouth"
+    labPassword = $password
   },
     @{
-    Scenario = "AzureLocation - does not accept missing parameter"
-    Error = ""
+    scenario = "AzureLocation - does not accept missing parameter"
+    expected = ""
     labName = "TestLab"
     labtype = "Splunk"
-    AzureLocation = $Null
-    LabPassword = $password
+    azureLocation = $Null
+    labPassword = $password
   },
   @{
-    Scenario = "AzureLocation - does not accept non-existent Azure regions"
-    Error = "Cannot validate argument on parameter 'AzureLocation'."
+    scenario = "AzureLocation - does not accept non-existent Azure regions"
+    expected = "Cannot validate argument on parameter 'AzureLocation'."
     labName = "TestLab"
     labtype = "Splunk"
-    AzureLocation = "NonExistentAzureLocation"
-    LabPassword = $password
+    azureLocation = "NonExistentAzureLocation"
+    labPassword = $password
   },
   @{
-    Scenario = "LabType - does not accept missing parameter"
-    Error = "Cannot validate argument on parameter 'AzureLocation'."
+    scenario = "LabType - does not accept missing parameter"
+    expected = "Cannot validate argument on parameter 'AzureLocation'."
     labName = "TestLab"
     labtype = $Null
-    AzureLocation = "UKSouth"
-    LabPassword = $password
+    azureLocation = "UKSouth"
+    labPassword = $password
     },
   @{
-    Scenario = "LabType - does not accept non-existent LabType"
-    Error = "Cannot validate argument on parameter 'AzureLocation'."
+    scenario = "LabType - does not accept non-existent LabType"
+    expected = "Cannot validate argument on parameter 'AzureLocation'."
     labName = "TestLab"
     labtype = "NonExistentLabType"
-    AzureLocation = "UKSouth"
-    LabPassword = $password
+    azureLocation = "UKSouth"
+    labPassword = $password
     },
   @{
-    Scenario = "LabPassword - does not accept missing parameter"
-    Error = "Cannot validate argument on parameter 'AzureLocation'."
+    scenario = "LabPassword - does not accept missing parameter"
+    expected = "Cannot validate argument on parameter 'AzureLocation'."
     labName = "TestLab"
     labtype = "Splunk"
-    AzureLocation = "UKSouth"
-    LabPassword = $Null
+    ezureLocation = "UKSouth"
+    labPassword = $Null
   },
   @{
-    Scenario = "LabPassword - does not accept wrong type"
-    Error = "Cannot validate argument on parameter 'AzureLocation'."
+    scenario = "LabPassword - does not accept wrong type"
+    expected = "Cannot validate argument on parameter 'AzureLocation'."
     labName = "TestLab"
     labtype = "Splunk"
-    AzureLocation = "UKSouth"
-    LabPassword = $Null
+    azureLocation = "UKSouth"
+    labPassword = $Null
   }
 )
 
 It "Input: <Scenario>" -TestCases $newAzureLabtestCases {
-  {New-AzureLab -LabName -LabType -AzureLocation -LabPassword } | Should throw $error
+  {New-AzureLab -LabName -LabType -AzureLocation -LabPassword } | Should throw $expected
 }
 
 $newLab_Input_TestCases_Pass = @(

@@ -6,6 +6,7 @@ Describe "AzureLab Tests" {
   Context "New-AzureLab Tests" {
     # Parameter Variables
     $labName = "PesterTest"
+    $labType = "Splunk"
     $azureLocation = "UKSouth"
     $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
 
@@ -25,42 +26,69 @@ Describe "AzureLab Tests" {
     }
 
     # TestCases
-    $labNameCases = @(
+    $newLab_Input_TestCases_Fail = @(
+      @{
+        scenario = "LabName - does not accept input longer than 61 chars"
+        expected = "Cannot validate argument on parameter 'LabName'. The character length of the 62 argument is too long"
+        labName = "62626262626262626262626262626262626262626262626262626262626262"
+        labType = "Splunk"
+        azureLocation = "UKSouth"
+        labPassword = $password
+      },
         @{
-            testLabName = "61616161616161616161616161616161616161616161616161616161616161"
-            TestScenario = "throws if input longer than 61 characters"
+        scenario = "AzureLocation - does not accept missing parameter"
+        expected = "Cannot validate argument on parameter 'AzureLocation'. The argument is null"
+        labName = "TestLab"
+        labType = "Splunk"
+        azureLocation = $Null
+        labPassword = $password
+      },
+      @{
+        scenario = "AzureLocation - does not accept non-existent Azure regions"
+        expected = "Cannot validate argument on parameter 'AzureLocation'. The argument `"NonExistentAzureLocation`" does not belong"
+        labName = "TestLab"
+        labType = "Splunk"
+        azureLocation = "NonExistentAzureLocation"
+        labPassword = $password
+      },
+      @{
+        scenario = "LabType - does not accept missing parameter"
+        expected = "Cannot bind argument to parameter 'LabType' because it is an empty string."
+        labName = "TestLab"
+        labType = $Null
+        azureLocation = "UKSouth"
+        labPassword = $password
         },
-        @{
-            testLabName = '$Wibbler'
-            TestScenario = "throws if input contains a $ sign"
-        }
+      @{
+        scenario = "LabType - does not accept non-existent LabType"
+        expected = "Cannot validate argument on parameter 'LabType'. The argument `"NonExistentLabType`" does not belong"
+        labName = "TestLab"
+        labType = "NonExistentLabType"
+        azureLocation = "UKSouth"
+        labPassword = $password
+        },
+      @{
+        scenario = "LabPassword - does not accept missing parameter"
+        expected = "Cannot bind argument to parameter 'LabPassword' because it is null."
+        labName = "TestLab"
+        labType = "Splunk"
+        ezureLocation = "UKSouth"
+        labPassword = $Null
+      },
+      @{
+        scenario = "LabPassword - does not accept wrong type"
+        expected = "Cannot validate argument on parameter 'AzureLocation'."
+        labName = "TestLab"
+        labType = "Splunk"
+        azureLocation = "UKSouth"
+        labPassword = "AStringPassword"
+      }
     )
 
-    # Parameter Variables
-    $badAzureLocation = "Biggleswade"
-
     # INPUT TESTS
-    It "Input - accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
-        {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
-            should throw "Cannot validate argument on parameter 'LabName'"
-    }
-
-    It -Pending  "Input - throws validation error if AzureLocation not provided" {
-        New-AzureLab -LabName $labName -LabPassword $password
-    }
-
-    It "Input - accepts existing Azure regions as input for AzureLocation" {
-        {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
-            should throw "Cannot validate argument on parameter 'AzureLocation'."
-    }
-
-    It -Pending "Input - throws validation error if LabType not specified"
-
-    It -Pending "Input - only accepts validated parameters for LabType"
-
-    It "Input - does not accept invalid Azure regions as input for AzureLocation" {
-        {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
-            Should throw "Cannot validate argument on parameter 'AzureLocation'. The argument `"Biggleswade`""
+    It "Input: Should Fail: <scenario>" -TestCases $newLab_Input_TestCases_Fail {
+      param ($labName, $labType, $azureLocation, $labPassword)
+      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword } | Should throw $expected
     }
 
     # EXECUTION TESTS
@@ -68,7 +96,7 @@ Describe "AzureLab Tests" {
         Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
             $true
         }
-        New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password 
+        New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password 
         Assert-MockCalled New-AzureRmResourceGroup -times 0
     }
 
@@ -76,7 +104,7 @@ Describe "AzureLab Tests" {
         Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
             $false
         }
-        $return = New-AzureLab -LabName $labName -AzureLocation $azureLocation -LabPassword $password 
+        $return = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password 
         Assert-MockCalled -CommandName New-AzureRmResourceGroup -Times 1
         $return.ResourceGroup.ResourceGroupName | Should be $labName
     }        

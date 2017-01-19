@@ -1,9 +1,11 @@
 ﻿Function New-AzureLab {
   [CmdletBinding()]
   param(
+    [Parameter(Mandatory)]
     [ValidateLength(1,61)]
     [ValidatePattern("[a-zA-Z0-9_-]")]
     [string]$LabName,
+    [Parameter(Mandatory)]
     [ValidateSet("Splunk")]
     [string]$LabType,
     [Parameter(Mandatory)]

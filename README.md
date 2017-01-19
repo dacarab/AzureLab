@@ -25,7 +25,6 @@ A bare minimum of functionality required is one line provisioning / de-provision
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
 1. Improve tests for parameter validation - consider TestCases.
 
-
 ## Functions
 
 ### New-AzureLab
