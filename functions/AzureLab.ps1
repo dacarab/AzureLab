@@ -15,7 +15,7 @@
     }
 
   End {
-    
+    # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
     $AzureLocation = $($PSBoundParameters.AzureLocation)
 
     # Set-up the relevant parameters to pass to the template

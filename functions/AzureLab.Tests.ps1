@@ -39,16 +39,19 @@ Describe "AzureLab Tests" {
     # Parameter Variables
     $badAzureLocation = "Biggleswade"
 
+    # INPUT TESTS
     It "Input - accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
         {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
-            should throw "Cannot validate argument on parameter"
+            should throw "Cannot validate argument on parameter 'LabName'"
     }
 
-    It -Pending  "Input - throws validation error if AzureLocation not provided" 
+    It -Pending  "Input - throws validation error if AzureLocation not provided" {
+        New-AzureLab -LabName $labName -LabPassword $password
+    }
 
     It "Input - accepts existing Azure regions as input for AzureLocation" {
         {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
-            should throw "Cannot validate argument on parameter"
+            should throw "Cannot validate argument on parameter 'AzureLocation'."
     }
 
     It -Pending "Input - throws validation error if LabType not specified"
@@ -57,9 +60,10 @@ Describe "AzureLab Tests" {
 
     It "Input - does not accept invalid Azure regions as input for AzureLocation" {
         {New-AzureLab -LabName $labName -AzureLocation $badAzureLocation -LabPassword $password} |
-            should throw "Cannot validate argument on parameter"
+            Should throw "Cannot validate argument on parameter 'AzureLocation'. The argument `"Biggleswade`""
     }
 
+    # EXECUTION TESTS
     It "Execution - Does not re-create ResourceGroup if already exists" {
         Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
             $true
@@ -77,6 +81,7 @@ Describe "AzureLab Tests" {
         $return.ResourceGroup.ResourceGroupName | Should be $labName
     }        
 
+    # OUTPUT TESTS
     It -Pending "Output - Returns the proper type"
 
   }
