@@ -35,24 +35,6 @@ Function Remove-AzureLabAutomation {
 }
 
 # Helper Functions
-
-Function Helper_Ensure_Connected {
-    [CmdletBinding()]
-    Param()
-    Try {
-        Get-AzureRmContext
-    }
-    Catch [System.Management.Automation.PSInvalidOperationException] {
-      Write-Host -ForegroundColor Yellow "Please complete your Azure login through the browser window."
-      $azureRmContext = Add-AzureRmAccount
-      Write-Host -ForegroundColor Yellow "Continuing..."
-    }
-    Catch [System.Management.Automation.CommandNotFoundException] {
-      Write-Host -ForegroundColor Red "Please ensure that you have AzureRM module installed. Exiting."
-    }
-    Return $azureRmContext
-}
-
 Function Helper_NewAutomationAccount {
   [CmdletBinding()]
   param(

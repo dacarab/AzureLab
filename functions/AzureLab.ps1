@@ -11,11 +11,10 @@
     [Parameter(Mandatory)]
     [securestring]$LabPassword
   )
-    # Block to ensure only valid AzureLocations are selected
-    DynamicParam {
-      Helper_DynamicParamAzureLocation
-    }
-
+  # Block to ensure only valid AzureLocations are selected
+  DynamicParam {
+    Helper_DynamicParamAzureLocation
+  }
   End {
     # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
     $AzureLocation = $($PSBoundParameters.AzureLocation)
