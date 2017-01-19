@@ -42,6 +42,11 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     Return $true
   } -ModuleName AzureLab
 
+  Mock -CommandName Helper_EnsureConnected -MockWith {
+    #TODO: Simulate return data properly
+    Return $true
+  } -ModuleName AzureLab
+  
   # Describe block variables
   $labName = "PesterTest"
   $labType = "Splunk"

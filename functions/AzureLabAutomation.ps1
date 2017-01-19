@@ -24,7 +24,11 @@ Function New-AzureLabAutomation {
     # Create Automation Account if it does not exist
     Helper_NewAutomationAccount -LabName $LabName -AzureLocation $AzureLocation -DSCSourceFolder $DSCSourceFolder
 
+    # Create Storage Account 
+    Helper_NewBlockStorageAccount
+
     # Upload DSC config files
+    Helper_UpDSCloadFiles
 
     # Return object detailing end state of automation config
   }
@@ -56,10 +60,23 @@ Function Helper_NewAutomationAccount {
   Return $automationAccount
 }
 
-Function Helper_NewBlockStorage {
+Function Helper_NewBlockStorageAccount {
 
 }
 
 Function Helper_UpDSCloadFiles {
 
+}
+
+Function Helper_GetRealIP {
+  [CmdletBinding()]
+  param()
+  Try {
+    $ip = Invoke-WebRequest -uri http://canihazip.com/s |
+     Select-Object -ExpandProperty Content
+  }
+  Catch {
+    throw "Failed to get ip address from http://canihazip.com - $($Error[0].Exception)"
+  }
+  Return $ip
 }

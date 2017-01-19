@@ -16,6 +16,7 @@
     Helper_DynamicParamAzureLocation
   }
   End {
+    Helper_EnsureConnected
     # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
     $AzureLocation = $($PSBoundParameters.AzureLocation)
 

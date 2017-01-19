@@ -4,8 +4,9 @@ Remove-Module AzureLab -ErrorAction SilentlyContinue
 Import-Module -name .\AzureLab.psm1
 
 Describe "Module Tests" -Tag Unit {
-  Context "Module Helper Functions"
-  It -Pending "Connects you to Azure if not logged in"
+  Context "Module Helper Functions" {
+    It -Pending "Connects you to Azure if not logged in"
+  }
 }
 
 Invoke-Pester -Script .\Functions 
