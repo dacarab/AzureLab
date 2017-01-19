@@ -23,7 +23,6 @@ A bare minimum of functionality required is one line provisioning / de-provision
 ## Issue Log
 
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
-1. Improve tests for parameter validation - consider TestCases.
 
 ## Functions
 

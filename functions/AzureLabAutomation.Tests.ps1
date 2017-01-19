@@ -33,7 +33,12 @@ Describe "New-AzureLabAutomation" {
     }
 
     Context Execution {
-        It -Pending "throws if not connected to Azure ARM" {
+        # Execution Context Mocks
+        Mock -CommandName Add-AzureRmAccount -Verifiable -MockWith {
+
+        }
+
+        It -Pending "runs 'New-AzureRmAccount' if not connected to Azure ARM" {
 
         }
 

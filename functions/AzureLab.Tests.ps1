@@ -34,6 +34,7 @@ Describe "AzureLab Tests" {
         labType = "Splunk"
         azureLocation = "UKSouth"
         labPassword = $password
+        shouldBlock = {}
       },
         @{
         scenario = "AzureLocation - does not accept missing parameter"
