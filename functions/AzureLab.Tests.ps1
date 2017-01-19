@@ -7,11 +7,31 @@ Describe "AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\..\files\AzureRmLocations.xml" TestDrive:}
 
   # Describe block mocks
-  Mock -CommandName Get-AzureRmLocation -ModuleName AzureLab -MockWith {
+  Mock -CommandName Get-AzureRmLocation -MockWith {
     $returnData = Import-Clixml -Path "TestDrive:\AzureRmLocations.xml"
     Return $returnData
-  }
+  } -ModuleName AzureLab
 
+  Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+      $true
+  } -ModuleName AzureLab
+
+  Mock -CommandName New-AzureRmResourceGroup -MockWith {
+    $returnData = @{
+      ResourceGroupName = $LabName
+      Tags = @{
+        AutoLab = $LabName
+      }
+    }
+
+    Return [PSCustomObject]$returnData
+  } -ModuleName AzureLab
+
+  Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
+    #TODO: Update to better reflect returned object
+    Return $true
+  } -ModuleName AzureLab
+  
   # Describe block Variables
   $labName = "PesterTest"
   $labType = "Splunk"
@@ -80,39 +100,34 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       }
     )
 
+    $inputTestCases_Pass = @(
+      @{
+        scenario = "LabName - accepts input with hyphens and underscores"
+        labName = "_Underscores-and-Hyphens_"
+        labType = "Splunk"
+        azureLocation = "UKSouth"
+        labPassword = $password
+      }
+    )
+
     # INPUT TESTS
-    It "Input: Should Fail: <scenario>" -TestCases $inputTestCases_Fail {
+    It "[Input:     ] Should Fail: <scenario>" -TestCases $inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword)
-      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword } | Should throw $expected
+      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should throw $expected
     }
 
+    It "[Input:     ] Should Pass: <scenario>" -TestCases $inputTestCases_Pass {
+      param ($labName, $labType, $azureLocation, $labPassword)
+      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should not throw 
+    }      
+
     # EXECUTION TESTS
-    It "Execution - Does not re-create ResourceGroup if already exists" {
-      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-          $true
-      } -ModuleName AzureLab
-
-      Mock -CommandName New-AzureRmResourceGroup -MockWith {
-        $returnData = @{
-          ResourceGroupName = $LabName
-          Tags = @{
-            AutoLab = $LabName
-          }
-        }
-
-        Return [PSCustomObject]$returnData
-      } -ModuleName AzureLab
-
-      Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
-        #TODO: Update to better reflect returned object
-        Return $true
-      } -ModuleName AzureLab
-
+    It "[Execution: ] - Does not re-create ResourceGroup if already exists" {
       $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password
       $($returned.RGCreated) | Should be $false
     }
 
-    It "Execution - Creates the required ResourceGroup if it does not exist" {
+    It "[Execution: ] - Creates the required ResourceGroup if it does not exist" {
         Mock -CommandName Get-AzureRmResourceGroup -MockWith {
             $false
         } -ModuleName AzureLab
