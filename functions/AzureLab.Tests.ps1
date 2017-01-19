@@ -13,7 +13,13 @@ Describe "AzureLab Unit Tests" -Tag Unit {
   } -ModuleName AzureLab
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-      $true
+    $returnData = @{
+      ResourceGroupName = $LabName
+      Tags = @{
+        AutoLab = $LabName
+      }
+    }
+    Return [PSCustomObject]$returnData
   } -ModuleName AzureLab
 
   Mock -CommandName New-AzureRmResourceGroup -MockWith {
@@ -32,15 +38,19 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     Return $true
   } -ModuleName AzureLab
   
-  # Describe block Variables
+  Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
+    Return $true
+  } -ModuleName AzureLab
+
+  # Describe block variables
   $labName = "PesterTest"
   $labType = "Splunk"
   $azureLocation = "UKSouth"
   $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
 
   Context "New-AzureLab Tests" {
-    # TestCases
-    $inputTestCases_Fail = @(
+    # Context block testcases
+    $newAzureLab_inputTestCases_Fail = @(
       @{
         scenario = "LabName - does not accept input longer than 61 chars"
         expected = "Cannot validate argument on parameter 'LabName'. The character length of the 62 argument is too long"
@@ -109,7 +119,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       }
     )
 
-    $inputTestCases_Pass = @(
+    $newAzureLab_inputTestCases_Pass = @(
       @{
         scenario = "LabName - accepts input with hyphens and underscores"
         labName = "_Underscores-and-Hyphens_"
@@ -119,18 +129,18 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       }
     )
 
-    # INPUT TESTS
-    It "[Input:     ] Should Fail: <scenario>" -TestCases $inputTestCases_Fail {
+    # New-AzureLab input tests
+    It "[Input:     ] Should Fail: <scenario>" -TestCases $newAzureLab_inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword, $expected)
       {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should throw $expected
     }
 
-    It "[Input:     ] Should Pass: <scenario>" -TestCases $inputTestCases_Pass {
+    It "[Input:     ] Should Pass: <scenario>" -TestCases $newAzureLab_inputTestCases_Pass {
       param ($labName, $labType, $azureLocation, $labPassword)
       {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should not throw 
     }      
 
-    # EXECUTION TESTS
+    # New-AzureLab execution tests
     It "[Execution: ] - Does not re-create ResourceGroup if already exists" {
       $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password
       $($returned.RGCreated) | Should be $false
@@ -145,75 +155,68 @@ Describe "AzureLab Unit Tests" -Tag Unit {
         $($returned.RGCreated) | Should be $true
     }        
 
-    # OUTPUT TESTS
+    # New-AzureLab output tests
     It -Pending "Output - Returns the proper type"
 
-  }
+  } # Context
 
   Context "Remove-AzureLab Tests" {
-  $labNameCases = @(
+    # Context block TestCases
+    $removeAzureLab_inputTestCases_Fail = @(
       @{
-          testLabName = "61616161616161616161616161616161616161616161616161616161616161"
-          TestScenario = "throws if input longer than 61 characters"
+        scenario = "LabName - does not accept input longer than 61 chars"
+        expected = "Cannot validate argument on parameter 'LabName'. The character length of the 62 argument is too long"
+        labName = "62626262626262626262626262626262626262626262626262626262626262"
       },
       @{
-          testLabName = '$Wibbler'
-          TestScenario = "throws if input contains a $ sign"
+        scenario = "LabName - does not accept input with a $ sign"
+        expected = "Cannot validate argument on parameter 'LabName'. The argument `"`" does not match the `"[a-zA-Z0-9_-]`" pattern."
+        labName = "$ShouldNotBeValid"
       }
-  )
+    )
 
-  # Describe Block Variables
-  $LabName = "RemoveLabTest"
-  $returnData = @{
-    ResourceGroupName = "RemoveLabTest"
-    Tags = @{
-      AutoLab = "RemoveLabTest"
-    }
-  }
+    $removeAzureLab_inputTestCases_Pass = @(
+      @{
+        scenario = "LabName - accepts input with hyphens and underscores"
+        labName = "_Underscores-and-Hyphens_"
+      }
+    )
 
-  # Remove-AzureLab Describe Block Mocks
-  Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-    Return [PSCustomObject]$returnData
-  } -ModuleName AzureLab
-
-  Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
-    Return $true
-  } -ParameterFilter {$LabName -eq $LabName}
-
-    It "Input - accepts valid input for LabName: <TestScenario>" -TestCases $labNameCases {
-      {New-AzureLab -LabName $testLabName -AzureLocation $azureLocation -LabPassword $password} |
-        should throw "Cannot validate argument on parameter"
+    # input tests
+    It "[Input:     ] Should Fail: <scenario>" -TestCases $removeAzureLab_inputTestCases_Fail {
+      param ($labName, $labType, $azureLocation, $labPassword, $expected)
+      {Remove-AzureLab -LabName $labName} | Should throw $expected
     }
 
-    It "Execution - should remove a specified Resource Group" {
-        $returnData = @{
-            ResourceGroupName = $LabName
-            Tags = @{
-                AutoLab = $LabName
-            }
-        }
-        Remove-AzureLab -LabName $LabName
-        Assert-MockCalled Remove-AzureRmResourceGroup -Times 1
+    It "[Input:     ] Should Pass: <scenario>" -TestCases $removeAzureLab_inputTestCases_Pass {
+      param ($labName, $labType, $azureLocation, $labPassword)
+      {Remove-AzureLab -LabName $labName} | Should not throw 
     }
 
+    # EXECUTION TESTS
     It "Execution - should throw if the specified Resource Group does not exist" {
-        $LabName = "DoesNotExist"
-        $returnData = $null
-        {Remove-AzureLab -LabName $LabName} |
-          Should throw "Cannot remove Resource Group $LabName - it does not exist."
+      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+        Return $Null
+      } -ModuleName AzureLab
+      {Remove-AzureLab -LabName $labName} |
+        Should throw "Cannot remove Resource Group $labName - it does not exist."
     }
-    
+
     It "Execution - should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
+      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
         $returnData = @{
                 ResourceGroupName = $LabName
                 Tags = @{}
         }
-        {Remove-AzureLab -LabName $LabName} |
-            Should throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+        Return [PSCustomObject]$returnData
+      } -ModuleName AzureLab
+      {Remove-AzureLab -LabName $labName} |
+       Should throw "Cannot remove Resource Group $labName - does not have the correct tag, 'AutoLab'."
     }
 
+    # OUTPUT TESTS
     It "Output - Returns $false if ResourceGroup does exist after remove attempt" {
-    Remove-AzureLab -LabName $LabName | Should be $false
+    Remove-AzureLab -LabName $labName | Should be $false
       Assert-VerifiableMocks
     }
 
@@ -221,11 +224,14 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       Mock -CommandName Get-AzureRmResourceGroup -MockWith {
         Return $Null
       } -ParameterFilter {$Name -and $Name -eq $LabName} -ModuleName AzureLab
-      Remove-AzureLab -LabName "$LabName" | Should Be $true
+      Remove-AzureLab -LabName "$labName" | Should Be $true
     }
   }
 }
 
 Describe "Azure Lab Integration Tests" -Tag Integration {
 
+    It -Pending "Execution - should remove  specified Resource Group" {
+        Remove-AzureLab -LabName $labName -verbose | Should be $true
+    }
 }

@@ -28,9 +28,9 @@
     # Create ResourceGroup if required
     $rgCreated = $false
     Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
-    $getRG = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-    Write-Verbose "Get          AzureRmResourceGroup returns $getRG"
-    If (!$getRG) {
+    $returned = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get          AzureRmResourceGroup returns $returned"
+    If (!$returned) {
       Write-Verbose "New          AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}"
       $labResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}
       Write-Verbose "New          AzureRmResourceGroup returns $labResourceGroup"
@@ -49,7 +49,7 @@
     }
     Write-Verbose "Returning $([PSCustomObject]$returnData.RGCreated)"
     Return [PSCustomObject]$returnData
-  } #End
+  } # End
 } # Function New-AzureLab
 
 Function Remove-AzureLab {
@@ -63,10 +63,10 @@ Function Remove-AzureLab {
 
   # Get the resource group
   Write-Verbose "Checking ResourceGroup Exists:"
-  $labRG = Get-AzureRmResourceGroup | Where-Object ResourceGroupName -eq $LabName
-  Write-Verbose "Get          AzureRmResourceGroup returns $labRg"
-  If ($labRG) {
-    if ($labRG.Tags.AutoLab -eq $LabName) {
+  $returned1 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+  Write-Verbose "Get          AzureRmResourceGroup returns $returned1"
+  If ($returned1) {
+    if ($returned1.Tags.AutoLab -eq $LabName) {
       Write-Verbose "Remove         AzureRMResourceGroup $LabName"
       Remove-AzureRmResourceGroup -Name $LabName -Force | Out-Null
     }
@@ -78,16 +78,15 @@ Function Remove-AzureLab {
     Throw "Cannot remove Resource Group $LabName - it does not exist."
   }
 
-  # Adding Name param to enable targeted mocking in Pester tests
   Write-Verbose "Checking Resource Group Removed:"
-  $r = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-  Write-Debug "`$r = $r"
-  if (!($r)) {
+  $returned2 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+  Write-Debug "`$returned2 = $returned2"
+  if (!($returned2)) {
     Write-Verbose "Get          AzureRmResourceGroup $Labname returns nothing"
     Return $true
   }
   Else {
-    Write-Verbose "Get          AzureRmResourceGroup $Labname returns $r"
+    Write-Verbose "Get          AzureRmResourceGroup $Labname returns $returned2"
     Return $false
   }
 } # Function Remove-AzureLab
