@@ -24,28 +24,33 @@
     $deploymentHash = @{
       labPassword = $LabPassword
     }
-    # Create ResourceGroup if required
-    Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
-    $getRGResults = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-    Write-Verbose "Get          AzureRmResourceGroup returns $getRGResults"
 
-    If (!$getRGResults) {
+    # Create ResourceGroup if required
+    $rgCreated = $false
+    Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
+    $getRG = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get          AzureRmResourceGroup returns $getRG"
+    If (!$getRG) {
       Write-Verbose "New          AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}"
       $labResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}
       Write-Verbose "New          AzureRmResourceGroup returns $labResourceGroup"
+      If ($labResourceGroup) {
+        $rgCreated = $true
+      }
     }
 
     # Deploy the template
     New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $deploymentHash -TemplateFile .\files\SplunkLab.json
 
-    # TODO: Return a PSCustomObject that represents the end state of the objects deployed
+    # Return a PSCustomObject that represents the end state of the objects deployed
     $returnData = @{
       ResourceGroup = $labResourceGroup
+      RGCreated = $rgCreated
     }
-
-    Return $returnData
-  }
-}
+    Write-Verbose "Returning $([PSCustomObject]$returnData.RGCreated)"
+    Return [PSCustomObject]$returnData
+  } #End
+} # Function New-AzureLab
 
 Function Remove-AzureLab {
   [CmdletBinding()]
@@ -85,4 +90,4 @@ Function Remove-AzureLab {
     Write-Verbose "Get          AzureRmResourceGroup $Labname returns $r"
     Return $false
   }
-}
+} # Function Remove-AzureLab

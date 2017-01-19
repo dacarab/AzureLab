@@ -1,32 +1,26 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
-. "$here\$sut"
+# . "$here\$sut"
 
-Describe "AzureLab Tests" {
+Describe "AzureLab Unit Tests" -Tag Unit {
+  BeforeAll {Copy-Item "$here\..\files\AzureRmLocations.xml" TestDrive:}
+
+  # Describe block mocks
+  Mock -CommandName Get-AzureRmLocation -ModuleName AzureLab -MockWith {
+    $returnData = Import-Clixml -Path "TestDrive:\AzureRmLocations.xml"
+    Return $returnData
+  }
+
+  # Describe block Variables
+  $labName = "PesterTest"
+  $labType = "Splunk"
+  $azureLocation = "UKSouth"
+  $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
+
   Context "New-AzureLab Tests" {
-    # Parameter Variables
-    $labName = "PesterTest"
-    $labType = "Splunk"
-    $azureLocation = "UKSouth"
-    $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
-
-    # Mocks
-    Mock -CommandName New-AzureRmResourceGroupDeployment  -MockWith {
-      #TODO - Return Data
-    }
-
-    Mock -CommandName New-AzureRmResourceGroup -Verifiable -MockWith {
-      $returnData = @{
-        ResourceGroupName = $LabName
-        Tags = @{
-          AutoLab = $LabName
-        }
-      }
-      Return [PSCustomObject]$returnData
-    }
-
     # TestCases
-    $newLab_Input_TestCases_Fail = @(
+    $inputTestCases_Fail = @(
       @{
         scenario = "LabName - does not accept input longer than 61 chars"
         expected = "Cannot validate argument on parameter 'LabName'. The character length of the 62 argument is too long"
@@ -87,27 +81,44 @@ Describe "AzureLab Tests" {
     )
 
     # INPUT TESTS
-    It "Input: Should Fail: <scenario>" -TestCases $newLab_Input_TestCases_Fail {
+    It "Input: Should Fail: <scenario>" -TestCases $inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword)
       {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword } | Should throw $expected
     }
 
     # EXECUTION TESTS
     It "Execution - Does not re-create ResourceGroup if already exists" {
-        Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
-            $true
+      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+          $true
+      } -ModuleName AzureLab
+
+      Mock -CommandName New-AzureRmResourceGroup -MockWith {
+        $returnData = @{
+          ResourceGroupName = $LabName
+          Tags = @{
+            AutoLab = $LabName
+          }
         }
-        New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password 
-        Assert-MockCalled New-AzureRmResourceGroup -times 0
+
+        Return [PSCustomObject]$returnData
+      } -ModuleName AzureLab
+
+      Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
+        #TODO: Update to better reflect returned object
+        Return $true
+      } -ModuleName AzureLab
+
+      $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password
+      $($returned.RGCreated) | Should be $false
     }
 
     It "Execution - Creates the required ResourceGroup if it does not exist" {
-        Mock -CommandName Get-AzureRmResourceGroup -Verifiable -MockWith {
+        Mock -CommandName Get-AzureRmResourceGroup -MockWith {
             $false
-        }
-        $return = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password 
-        Assert-MockCalled -CommandName New-AzureRmResourceGroup -Times 1
-        $return.ResourceGroup.ResourceGroupName | Should be $labName
+        } -ModuleName AzureLab
+
+        $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password 
+        $($returned.RGCreated) | Should be $true
     }        
 
     # OUTPUT TESTS
@@ -139,7 +150,7 @@ Describe "AzureLab Tests" {
   # Remove-AzureLab Describe Block Mocks
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
     Return [PSCustomObject]$returnData
-  }
+  } -ModuleName AzureLab
 
   Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
     Return $true
@@ -185,8 +196,12 @@ Describe "AzureLab Tests" {
     It "Output - should return $true if ResourceGroup does not exist after remove attempted" {
       Mock -CommandName Get-AzureRmResourceGroup -MockWith {
         Return $Null
-      } -ParameterFilter {$Name -and $Name -eq $LabName} 
+      } -ParameterFilter {$Name -and $Name -eq $LabName} -ModuleName AzureLab
       Remove-AzureLab -LabName "$LabName" | Should Be $true
     }
   }
+}
+
+Describe "Azure Lab Integration Tests" -Tag Integration {
+
 }

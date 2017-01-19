@@ -5,7 +5,7 @@ Import-Module -name .\AzureLab.psm1
 
 Describe "Module Tests"{}
 
-Invoke-Pester -Script .\Functions
+Invoke-Pester -Script .\Functions -Tag Unit
 
 Write-Host -ForegroundColor Red "Removing AzureLab Module"
 Remove-Module AzureLab
