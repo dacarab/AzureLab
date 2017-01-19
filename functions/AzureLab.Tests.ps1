@@ -141,12 +141,12 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     }      
 
     # New-AzureLab execution tests
-    It "[Execution: ] - Does not re-create ResourceGroup if already exists" {
+    It "[Execution: ] Does not re-create ResourceGroup if already exists" {
       $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password
       $($returned.RGCreated) | Should be $false
     }
 
-    It "[Execution: ] - Creates the required ResourceGroup if it does not exist" {
+    It "[Execution: ] Creates the required ResourceGroup if it does not exist" {
         Mock -CommandName Get-AzureRmResourceGroup -MockWith {
             $false
         } -ModuleName AzureLab
@@ -194,7 +194,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     }
 
     # EXECUTION TESTS
-    It "Execution - should throw if the specified Resource Group does not exist" {
+    It "[Execution: ] Should throw if the specified Resource Group does not exist" {
       Mock -CommandName Get-AzureRmResourceGroup -MockWith {
         Return $Null
       } -ModuleName AzureLab
@@ -202,11 +202,11 @@ Describe "AzureLab Unit Tests" -Tag Unit {
         Should throw "Cannot remove Resource Group $labName - it does not exist."
     }
 
-    It "Execution - should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
+    It "[Execution: ] Should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
       Mock -CommandName Get-AzureRmResourceGroup -MockWith {
         $returnData = @{
-                ResourceGroupName = $LabName
-                Tags = @{}
+          ResourceGroupName = $LabName
+          Tags = @{}
         }
         Return [PSCustomObject]$returnData
       } -ModuleName AzureLab
@@ -215,23 +215,30 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     }
 
     # OUTPUT TESTS
-    It "Output - Returns $false if ResourceGroup does exist after remove attempt" {
-    Remove-AzureLab -LabName $labName | Should be $false
-      Assert-VerifiableMocks
-    }
-
-    It "Output - should return $true if ResourceGroup does not exist after remove attempted" {
+    It "[Output:    ] Returns $false if ResourceGroup does exist after remove attempt" {
       Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-        Return $Null
-      } -ParameterFilter {$Name -and $Name -eq $LabName} -ModuleName AzureLab
-      Remove-AzureLab -LabName "$labName" | Should Be $true
+        $returnData = @{
+          ResourceGroupName = $LabName
+          Tags = @{
+            AutoLab = $LabName
+          }
+        }
+        Return [PSCustomObject]$returnData
+      } -ModuleName AzureLab
+      Remove-AzureLab -LabName $labName | Should be $false
     }
   }
 }
 
 Describe "Azure Lab Integration Tests" -Tag Integration {
+  It -Pending "Execution - should remove  specified Resource Group" {
+    Remove-AzureLab -LabName $labName -verbose | Should be $true
+  }
 
-    It -Pending "Execution - should remove  specified Resource Group" {
-        Remove-AzureLab -LabName $labName -verbose | Should be $true
-    }
+  It -Pending "Output - should return $true if ResourceGroup does not exist after remove attempted" {
+    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+      Return $Null
+    } -ParameterFilter {$Name -and $Name -eq $LabName} -ModuleName AzureLab
+    Remove-AzureLab -LabName "$labName" | Should Be $true
+  }
 }
