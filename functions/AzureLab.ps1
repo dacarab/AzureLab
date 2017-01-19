@@ -15,7 +15,9 @@
     }
 
   End {
+    
     $AzureLocation = $($PSBoundParameters.AzureLocation)
+
     # Set-up the relevant parameters to pass to the template
     $deploymentHash = @{
       labPassword = $LabPassword

@@ -20,6 +20,10 @@ A bare minimum of functionality required is one line provisioning / de-provision
 * Documentation Pass:           *Not Started*
 * Pester Testing Review:        *Not Started*
 
+## Issue Log
+
+1. AzureLocations dynamic parameter code needs revising
+
 ## Functions
 
 ### New-AzureLab
