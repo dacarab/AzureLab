@@ -50,7 +50,16 @@ Describe "AzureLab Unit Tests" -Tag Unit {
         labPassword = $password
         shouldBlock = {}
       },
-        @{
+      @{
+        scenario = "LabName - does not accept input with a $ sign"
+        expected = "Cannot validate argument on parameter 'LabName'. The argument `"`" does not match the `"[a-zA-Z0-9_-]`" pattern."
+        labName = "$ShouldNotBeValid"
+        labType = "Splunk"
+        azureLocation = "UKSouth"
+        labPassword = $password
+        shouldBlock = {}
+      },      
+      @{
         scenario = "AzureLocation - does not accept missing parameter"
         expected = "Cannot validate argument on parameter 'AzureLocation'. The argument is null"
         labName = "TestLab"
@@ -68,9 +77,9 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       },
       @{
         scenario = "LabType - does not accept missing parameter"
-        expected = "Cannot bind argument to parameter 'LabType' because it is an empty string."
+        expected = "Cannot validate argument on parameter 'LabType'. The argument `"`" does not belong to the set `"Splunk`""
         labName = "TestLab"
-        labType = $Null
+        #labType = $Null
         azureLocation = "UKSouth"
         labPassword = $password
         },
@@ -92,7 +101,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       },
       @{
         scenario = "LabPassword - does not accept wrong type"
-        expected = "Cannot validate argument on parameter 'AzureLocation'."
+        expected = "Cannot process argument transformation on parameter 'LabPassword'. Cannot convert the `"AStringPassword`" value of type `"System.String`" to type `"System.Security.SecureString`"."
         labName = "TestLab"
         labType = "Splunk"
         azureLocation = "UKSouth"
@@ -112,7 +121,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
 
     # INPUT TESTS
     It "[Input:     ] Should Fail: <scenario>" -TestCases $inputTestCases_Fail {
-      param ($labName, $labType, $azureLocation, $labPassword)
+      param ($labName, $labType, $azureLocation, $labPassword, $expected)
       {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should throw $expected
     }
 
