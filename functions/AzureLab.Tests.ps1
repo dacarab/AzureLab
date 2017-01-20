@@ -38,7 +38,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     Return $true
   } -ModuleName AzureLab
   
-  Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
+  Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
     Return $true
   } -ModuleName AzureLab
 
@@ -230,7 +230,12 @@ Describe "AzureLab Unit Tests" -Tag Unit {
         }
         Return [PSCustomObject]$returnData
       } -ModuleName AzureLab
-      Remove-AzureLab -LabName $labName | Should be $false
+
+      Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
+        Return $true
+      } -ModuleName AzureLab
+
+      Remove-AzureLab -LabName $labName -verbose | Should be $false
     }
   }
 }

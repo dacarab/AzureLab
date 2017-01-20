@@ -60,15 +60,16 @@ Function Remove-AzureLab {
     [Parameter(Mandatory)]
     [string]$LabName
   )
-
+  Write-Verbose "+ENTERING        Remove-AzureLab"
+  $r = $false
   # Get the resource group
-  Write-Verbose "Checking ResourceGroup Exists:"
   $returned1 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-  Write-Verbose "Get          AzureRmResourceGroup returns $returned1"
+  Write-Verbose "Get            AzureRmResourceGroup returns $returned1"
   If ($returned1) {
     if ($returned1.Tags.AutoLab -eq $LabName) {
-      Write-Verbose "Remove         AzureRMResourceGroup $LabName"
-      Remove-AzureRmResourceGroup -Name $LabName -Force | Out-Null
+      Write-Verbose "Remove         AzureRmResourceGroup $LabName"
+      $r = Remove-AzureRmResourceGroup -Name $LabName -Force
+      Write-Verbose "Remove         AzureRmResourceGroup          returned $r"
     }
     Else {
       Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
@@ -77,8 +78,10 @@ Function Remove-AzureLab {
   Else {
     Throw "Cannot remove Resource Group $LabName - it does not exist."
   }
+  Write-Verbose "-EXITING         Remove-AzureLab"
+  Return $r
 
-  Write-Verbose "Checking Resource Group Removed:"
+<#  Write-Verbose "Checking Resource Group Removed:"
   $returned2 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
   Write-Debug "`$returned2 = $returned2"
   if (!($returned2)) {
@@ -88,5 +91,5 @@ Function Remove-AzureLab {
   Else {
     Write-Verbose "Get          AzureRmResourceGroup $Labname returns $returned2"
     Return $false
-  }
+  }#>
 } # Function Remove-AzureLab
