@@ -42,7 +42,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     Return $true
   } -ModuleName AzureLab
 
-  Mock -CommandName Helper_EnsureConnected -MockWith {
+  Mock -CommandName _EnsureConnected -MockWith {
     #TODO: Simulate return data properly
     Return $true
   } -ModuleName AzureLab
@@ -187,7 +187,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       }
     )
 
-    # input tests
+    # INPUT TESTS
     It "[Input:     ] Should Fail: <scenario>" -TestCases $removeAzureLab_inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword, $expected)
       {Remove-AzureLab -LabName $labName} | Should throw $expected
