@@ -2,7 +2,7 @@
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
 
 # HelperFunctions
-Function Helper_DynamicParamAzureLocation { # Dynamic AzureLocation parameter 
+Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter 
   $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
   $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
   $parameterAttribute = New-Object Parameter 

@@ -13,9 +13,13 @@
   )
   # Block to ensure only valid AzureLocations are selected
   DynamicParam {
-    Helper_DynamicParamAzureLocation
+    _DynamicParamAzureLocation
   }
-  Begin { _EnsureConnected }
+  Begin { 
+    Write-Verbose "+ENTERING        New-AzureLab"
+    $azureContext = _EnsureConnected 
+  }
+
   End {
     # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
     $AzureLocation = $($PSBoundParameters.AzureLocation)
@@ -47,7 +51,7 @@
       ResourceGroup = $labResourceGroup
       RGCreated = $rgCreated
     }
-    Write-Verbose "Returning $([PSCustomObject]$returnData.RGCreated)"
+    Write-Verbose "-EXITING         Remove-AzureLab Returning $([PSCustomObject]$returnData.RGCreated)"
     Return [PSCustomObject]$returnData
   } # End
 } # Function New-AzureLab
@@ -63,18 +67,19 @@ Function Remove-AzureLab {
 
   Begin { 
     Write-Verbose "+ENTERING        Remove-AzureLab"
-    _EnsureConnected 
+    $azureContext = _EnsureConnected 
   }
 
   End {
     $removeResult = $false
-    Write-Verbose "Checking ResourceGroup Exists:"
     $initialState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
     Write-Verbose "Get          AzureRmResourceGroup          returns $initialRGState"
     If ($initialState) {
       if ($initialState.Tags.AutoLab -eq $LabName) {
-        Write-Verbose "Remove        AzureRMResourceGroup $LabName"
+        Write-Verbose "Remove        AzureRMResourceGroup $LabName - `$removeResult = $removeResult"
+        Write-Verbose "`$removeResult = $removeResult"
         $removeResult = Remove-AzureRmResourceGroup -Name $LabName -Force
+        Write-Verbose "Remove        AzureRMResourceGroup returned $removeResult"        
       }
       Else {
         Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
@@ -84,7 +89,7 @@ Function Remove-AzureLab {
     Throw "Cannot remove Resource Group $LabName - it does not exist."
   }
 
-  Write-Verbose "-EXITING         Remove-AzureLab"
+  Write-Verbose "-EXITING         Remove-AzureLab Returning $removeResult"
   Return $removeResult
   }
 } # Function Remove-AzureLab

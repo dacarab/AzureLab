@@ -15,23 +15,14 @@ Function New-AzureLabAutomation {
     [ValidateScript({Test-Path $_ -PathType Container})]
     [string]$DSCSourceFolder
   )
-
-    DynamicParam {
-    Helper_DynamicParamAzureLocation
+  Begin {
+    Write-Verbose "+ENTERING        New-AzureLabAutomation"
+    $azureContext = _EnsureConnected 
   }
-
   End {
-    # Create Automation Account if it does not exist
-    Helper_NewAutomationAccount -LabName $LabName -AzureLocation $AzureLocation -DSCSourceFolder $DSCSourceFolder
-
-    # Create Storage Account 
-    Helper_NewBlockStorageAccount
-
-    # Upload DSC config files
-    Helper_UpDSCloadFiles
-
-    # Return object detailing end state of automation config
+    
   }
+
 }
 
 Function Remove-AzureLabAutomation {
@@ -39,7 +30,7 @@ Function Remove-AzureLabAutomation {
 }
 
 # Helper Functions
-Function Helper_NewAutomationAccount {
+Function _NewAutomationAccount {
   [CmdletBinding()]
   param(
     [string]$LabName,
@@ -60,15 +51,15 @@ Function Helper_NewAutomationAccount {
   Return $automationAccount
 }
 
-Function Helper_NewBlockStorageAccount {
+Function _NewBlockStorageAccount {
 
 }
 
-Function Helper_UpDSCloadFiles {
+Function _UpDSCloadFiles {
 
 }
 
-Function Helper_GetRealIP {
+Function _GetRealIP {
   [CmdletBinding()]
   param()
   Try {

@@ -232,10 +232,10 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       } -ModuleName AzureLab
 
       Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
-        Return $true
+        Return $false
       } -ModuleName AzureLab
 
-      Remove-AzureLab -LabName $labName -verbose | Should be $false
+      Remove-AzureLab -LabName $labName | Should be $false
     }
   }
 }
