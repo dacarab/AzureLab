@@ -1,6 +1,49 @@
 ﻿# Dotsource all the script files from functions folder that are not pester tests
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
 
+Function New-AzureLab {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory)]
+    [ValidateLength(1,61)]
+    [ValidatePattern("[a-zA-Z0-9_-]")]
+    [string]$LabName,
+
+    [Parameter(Mandatory)]
+    [ValidateSet("Splunk")]
+    [string]$LabType,
+    
+    [Parameter(Mandatory)]
+    [securestring]$LabPassword
+  )
+  # Block to ensure only valid AzureLocations are selected
+  DynamicParam {
+    _DynamicParamAzureLocation
+  }
+  Begin { 
+    Write-Verbose "+ENTERING        New-AzureLab"
+    $azureContext = _EnsureConnected
+    
+    # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
+    $AzureLocation = $($PSBoundParameters.AzureLocation)
+  }
+
+  End {
+    $newRgState = _NewResourceGroup -Name $LabName -Location $AzureLocation -LabType $LabType -Verbose
+
+    $newSaState = _NewStorageAccount -Name -ResourceGroup
+
+    $uploadLabFilesState = _UploadLabFiles -LabType -ResourceGroup
+
+    $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
+
+    $configureDeployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
+
+    Return $configureDeployState
+  }
+  
+}
+
 # HelperFunctions
 Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter 
   $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary

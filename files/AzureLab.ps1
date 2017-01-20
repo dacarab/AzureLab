@@ -21,8 +21,27 @@
   }
 
   End {
-    # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
-    $AzureLocation = $($PSBoundParameters.AzureLocation)
+    $newRgState = _NewResourceGroup -Name -Location
+
+    $newSaState = _NewStorageAccount -Name -ResourceGroup
+
+    $uploadLabFilesState = _UploadLabFiles -LabType -ResourceGroup
+
+    $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
+
+    $configureDeployState = _DeployArmTemplate -LabType -LabPassword
+
+    Return $configureDeployState
+  }
+  
+}
+Function _NewResourceGroup {
+
+
+
+
+}
+
 
     # Set-up the relevant parameters to pass to the template
     $deploymentHash = @{

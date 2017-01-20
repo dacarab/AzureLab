@@ -24,6 +24,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
 1. AzureLocations dynamic parameter not appearing properly in intellisense
+1. Add password validation checks in line with machine policy
 
 ## Functions
 
