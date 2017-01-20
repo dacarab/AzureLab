@@ -1,20 +1,21 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿Param(
+  [Switch]$Verbose
+)
+
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 Clear-Host
 Write-Host -ForegroundColor Red "Removing and re-importing AzureLab Module"
 Remove-Module AzureLab -ErrorAction SilentlyContinue
 Import-Module -name .\AzureLab.psm1
-$VerbosePreference = "Continue"
-Describe "Module Tests" -Tag Unit {
-  Context "Module Helper Functions" {
-    It -Pending "Connects you to Azure if not logged in"
-  }
+
+If ($Verbose) {
+  $Script:VerbosePreference = "Continue"
 }
 
 Describe "AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\files\AzureRmLocations.xml" TestDrive:}
 
   # Describe block mocks
-
   Mock -CommandName _EnsureConnected -MockWith {
     #TODO: Simulate return data properly
     Return $true
@@ -136,7 +137,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     # New-AzureLab input tests
     It "[Input:     ] Should Fail: <scenario>" -TestCases $newAzureLab_inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword, $expected)
-      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword -verbose} | Should throw $expected
+      {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should throw $expected
     }
 
     It "[Input:     ] Should Pass: <scenario>" -TestCases $newAzureLab_inputTestCases_Pass {
@@ -165,12 +166,12 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     }      
 
     # New-AzureLab execution tests
-    It "[Execution: ] Does not re-create ResourceGroup if already exists" {
+    It -Pending "[Execution: ] Does not re-create ResourceGroup if already exists" {
       $returned = New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password
       $($returned.RGCreated) | Should be $false
     }
 
-    It "[Execution: ] Creates the required ResourceGroup if it does not exist" {
+    It -Pending "[Execution: ] Creates the required ResourceGroup if it does not exist" {
         Mock -CommandName Get-AzureRmResourceGroup -MockWith {
             $Null
         } -ModuleName AzureLab
@@ -215,7 +216,21 @@ Describe "AzureLab Unit Tests" -Tag Unit {
 
     It "[Input:     ] Should Pass: <scenario>" -TestCases $removeAzureLab_inputTestCases_Pass {
       param ($labName, $labType, $azureLocation, $labPassword)
-      {Remove-AzureLab -LabName $labName} | Should not throw 
+      Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
+        Return $true
+      } -ModuleName AzureLab
+
+      Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+        $returnData = @{
+          ResourceGroupName = $LabName
+          Tags = @{
+            AutoLab = $LabName
+          }
+        }
+        Return [PSCustomObject]$returnData
+      } -ModuleName AzureLab
+
+      {Remove-AzureLab -LabName $labName } | Should not throw 
     }
 
     # EXECUTION TESTS
@@ -262,7 +277,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
 
 Describe "Azure Lab Integration Tests" -Tag Integration {
   It -Pending "Execution - should remove  specified Resource Group" {
-    Remove-AzureLab -LabName $labName -verbose | Should be $true
+    Remove-AzureLab -LabName $labName | Should be $true
   }
 
   It -Pending "Output - should return $true if ResourceGroup does not exist after remove attempted" {
@@ -274,7 +289,7 @@ Describe "Azure Lab Integration Tests" -Tag Integration {
 }
 
 Invoke-Pester -Script .\functions
+$Script:VerbosePreference = "SilentlyContinue"
 
 Write-Host -ForegroundColor Red "Removing AzureLab Module"
 Remove-Module AzureLab
-

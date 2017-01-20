@@ -20,6 +20,7 @@ Function New-AzureLab {
   DynamicParam {
     _DynamicParamAzureLocation
   }
+
   Begin { 
     Write-Verbose "+ENTERING        New-AzureLab"
     $azureContext = _EnsureConnected
@@ -29,7 +30,7 @@ Function New-AzureLab {
   }
 
   End {
-    $newRgState = _NewResourceGroup -Name $LabName -Location $AzureLocation -LabType $LabType -Verbose
+    $newRgState = _NewResourceGroup -Name $LabName -Location $AzureLocation -LabType $LabType
 
     $newSaState = _NewStorageAccount -Name -ResourceGroup
 
@@ -37,12 +38,50 @@ Function New-AzureLab {
 
     $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
 
-    $configureDeployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
+    $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 
-    Return $configureDeployState
+    Return $deployState
   }
   
 }
+
+Function Remove-AzureLab {
+  [CmdletBinding()]
+  param(
+    [ValidateLength(1,61)]
+    [ValidatePattern("[a-zA-Z0-9_-]")]
+    [Parameter(Mandatory)]
+    [string]$LabName
+  )
+
+  Begin { 
+    Write-Verbose "+ENTERING        Remove-AzureLab"
+    $azureContext = _EnsureConnected 
+  }
+
+  End {
+    $removeResult = $false
+     Write-Verbose "Get          AzureRMResourceGroup $LabName"
+    $initialState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get          AzureRmResourceGroup          returns $initialRGState"
+    If ($initialState) {
+      if ($initialState.Tags.AutoLab -eq $LabName) {
+        Write-Verbose "Remove        AzureRMResourceGroup $LabName"
+        $removeResult = Remove-AzureRmResourceGroup -Name $LabName -Force
+        Write-Verbose "Remove        AzureRMResourceGroup returned $removeResult"        
+      }
+      Else {
+        Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+      }
+  }
+  Else {
+    Throw "Cannot remove Resource Group $LabName - it does not exist."
+  }
+
+  Write-Verbose "-EXITING         Remove-AzureLab Returning $removeResult"
+  Return $removeResult
+  }
+} # Function Remove-AzureLab
 
 # HelperFunctions
 Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter 
