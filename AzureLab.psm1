@@ -23,7 +23,7 @@ Function Helper_DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   Return $paramDictionary
 }
 
-Function Helper_EnsureConnected { # Ensure Connected to Azure
+Function _EnsureConnected { # Ensure Connected to Azure
   [CmdletBinding()]
   Param()
   Try {

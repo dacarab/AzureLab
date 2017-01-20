@@ -15,8 +15,8 @@
   DynamicParam {
     Helper_DynamicParamAzureLocation
   }
+  Begin { _EnsureConnected }
   End {
-    Helper_EnsureConnected
     # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
     $AzureLocation = $($PSBoundParameters.AzureLocation)
 
@@ -60,33 +60,25 @@ Function Remove-AzureLab {
     [Parameter(Mandatory)]
     [string]$LabName
   )
-
-  # Get the resource group
-  Write-Verbose "Checking ResourceGroup Exists:"
-  $returned1 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-  Write-Verbose "Get          AzureRmResourceGroup returns $returned1"
-  If ($returned1) {
-    if ($returned1.Tags.AutoLab -eq $LabName) {
-      Write-Verbose "Remove         AzureRMResourceGroup $LabName"
-      Remove-AzureRmResourceGroup -Name $LabName -Force | Out-Null
+  Begin { _EnsureConnected }
+  End {
+    $removeResult = $false
+    Write-Verbose "Checking ResourceGroup Exists:"
+    $initialState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get          AzureRmResourceGroup          returns $initialRGState"
+    If ($initialState) {
+      if ($initialState.Tags.AutoLab -eq $LabName) {
+        Write-Verbose "Remove        AzureRMResourceGroup $LabName"
+        $removeResult = Remove-AzureRmResourceGroup -Name $LabName -Force
+      }
+      Else {
+        Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+      }
     }
     Else {
-      Throw "Cannot remove Resource Group $LabName - does not have the correct tag, 'AutoLab'."
+      Throw "Cannot remove Resource Group $LabName - it does not exist."
     }
-  }
-  Else {
-    Throw "Cannot remove Resource Group $LabName - it does not exist."
-  }
 
-  Write-Verbose "Checking Resource Group Removed:"
-  $returned2 = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-  Write-Debug "`$returned2 = $returned2"
-  if (!($returned2)) {
-    Write-Verbose "Get          AzureRmResourceGroup $Labname returns nothing"
-    Return $true
-  }
-  Else {
-    Write-Verbose "Get          AzureRmResourceGroup $Labname returns $returned2"
-    Return $false
+    Return $removeResult
   }
 } # Function Remove-AzureLab

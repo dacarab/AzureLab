@@ -23,6 +23,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 ## Issue Log
 
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
+1. AzureLocations dynamic parameter not appearing properly in intellisense
 
 ## Functions
 
@@ -49,7 +50,6 @@ Used to define a csv file containing a list of users to provision within AD. Thi
 
 **-ProvisionSMBShare**
 Another parameter that requires additional thought. It will be useful to provision an SMB share within the lab, and may even something that is done as part of the deployment to enable customization of the environment. Will be a *Switch*  parameter.
-
 #### Example New-AzureLab Syntax
 
 New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare

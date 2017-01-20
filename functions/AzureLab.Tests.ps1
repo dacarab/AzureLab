@@ -38,11 +38,11 @@ Describe "AzureLab Unit Tests" -Tag Unit {
     Return $true
   } -ModuleName AzureLab
   
-  Mock -CommandName Remove-AzureRmResourceGroup -Verifiable -MockWith {
-    Return $true
+  Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
+    Return $false
   } -ModuleName AzureLab
 
-  Mock -CommandName Helper_EnsureConnected -MockWith {
+  Mock -CommandName _EnsureConnected -MockWith {
     #TODO: Simulate return data properly
     Return $true
   } -ModuleName AzureLab
@@ -187,7 +187,7 @@ Describe "AzureLab Unit Tests" -Tag Unit {
       }
     )
 
-    # input tests
+    # INPUT TESTS
     It "[Input:     ] Should Fail: <scenario>" -TestCases $removeAzureLab_inputTestCases_Fail {
       param ($labName, $labType, $azureLocation, $labPassword, $expected)
       {Remove-AzureLab -LabName $labName} | Should throw $expected
@@ -230,7 +230,8 @@ Describe "AzureLab Unit Tests" -Tag Unit {
         }
         Return [PSCustomObject]$returnData
       } -ModuleName AzureLab
-      Remove-AzureLab -LabName $labName | Should be $false
+
+      Remove-AzureLab -LabName $labName -verbose | Should be $false
     }
   }
 }
