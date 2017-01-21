@@ -16,7 +16,7 @@ Function New-AzureLab {
     [Parameter(Mandatory)]
     [securestring]$LabPassword
   )
-  # Block to ensure only valid AzureLocations are selected
+  # Block to ensure only valid AzureLocations are selected (if connected to Azure)
   DynamicParam {
     _DynamicParamAzureLocation
   }
@@ -27,7 +27,7 @@ Function New-AzureLab {
           $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
     }
     
-    Write-Verbose "+ENTERING        New-AzureLab"
+    Write-Verbose "+ENTERING        New-AzureLab $($PSBoundParameters.GetEnumerator())"
     $azureContext = _EnsureConnected
     
     # Assign AzureLocation dynamic parameter value to $AzureLocation for use in script
@@ -36,13 +36,9 @@ Function New-AzureLab {
 
   End {
     $newRgState = _NewResourceGroup -LabName $LabName -AzureLocation $AzureLocation -LabType $LabType
-
-    $newSaState = _NewStorageAccount -Name -ResourceGroup
-
+    $newSaState = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
     $uploadLabFilesState = _UploadLabFiles -LabType -ResourceGroup
-
     $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
-
     $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"
@@ -64,7 +60,7 @@ Function Remove-AzureLab {
     # Temporary fix for VerbosePreference from calling scope not being honoured 
     $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
 
-    Write-Verbose "+ENTERING        Remove-AzureLab"
+    Write-Verbose "+ENTERING        Remove-AzureLab $($PSBoundParameters.GetEnumerator())"
     $azureContext = _EnsureConnected 
   }
 
@@ -101,6 +97,7 @@ Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   $parameterAttribute.ParameterSetName = "Default"
   $parameterAttribute.Position = 1
   $paramAttributes.Add($parameterAttribute)
+
   Try { # If connected to Azure, create ValidateSet of Azure regions
     $locations = Get-AzureRmLocation | Select-Object -ExpandProperty Location
     $paramAttributes.Add((New-Object ValidateSet $locations))
@@ -108,6 +105,7 @@ Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   Catch { # See if there is a cached copy on the file system
     
   }
+  
   $parameterName = "AzureLocation"
   $paramDictionary[$parameterName] = New-Object System.Management.Automation.RuntimeDefinedParameter ($parameterName, [string[]], $paramAttributes)
 

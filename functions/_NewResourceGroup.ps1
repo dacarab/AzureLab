@@ -17,31 +17,29 @@
           $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
     }
 
-    Write-Verbose "+ENTERING        _NewResourceGroup"
+    Write-Verbose "+ENTERING        _NewResourceGroup $($PSBoundParameters.GetEnumerator())"
   }
 
   End {
-    Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
-    $rgState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
-    Write-Verbose "Get          AzureRmResourceGroup returns $rgState"
+    $resourceGroupState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
+    Write-Verbose "Get           AzureRmResourceGroup $LabName            returns $resourceGroupState"
 
-    If (!$rgState) {
-      Write-Verbose "New          AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}"
-      $rgState = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName; LabType = $LabType}
-      Write-Verbose "New          AzureRmResourceGroup returns $rgState"
-    }
-    ElseIf (!($rgState.Tags.AutoLab -eq "$LabName")) {
-      Throw "The underpinning resource group for $LabName already exists, but does not have the appropriate AutoLab tag. Try using a different LabName."
-    }
-    Else {
+    If ($resourceGroupState.Tags.AutoLab -eq "$LabName") {
       Write-Warning "Resource Group $LabName exists, and has the appropriate tags. Do you wish to continue?"
       $confirm = Read-Host "Press 'y' then enter to continue"
       if ($confirm -ne "y") {
         Throw "Lab creation terminated by user. Try using a different LabName."
       }
     }
+    ElseIf ($resourceGroupState) {
+      Throw "The underpinning resource group for $LabName already exists, but does not have the appropriate AutoLab tag. Try using a different LabName."
+    }
+    Else {
+      $resourceGroupState = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName; LabType = $LabType}
+      Write-Verbose "New          AzureRmResourceGroup $LabName            returns $resourceGroupState"
+    }
 
-    Write-Verbose "-EXITING        _NewResourceGroup returning $rgState"
-    Return $rgState
+    Write-Verbose "-EXITING        _NewResourceGroup returning $resourceGroupState"
+    Return $resourceGroupState
   } # End
 } # Function _NewResourceGroup

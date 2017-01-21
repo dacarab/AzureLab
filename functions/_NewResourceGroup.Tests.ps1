@@ -25,9 +25,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Return [PSCustomObject]$returnData
   } -ModuleName AzureLab
 
-  Mock -CommandName Read-Host -MockWith {
-    Return "y"
-  } -ModuleName AzureLab
+  Mock Read-Host {"y"} -ModuleName AzureLab
 
   Mock -CommandName Write-Warning -MockWith {
     # Do nothing
@@ -89,3 +87,9 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     $($returned.Tags.AutoLab) | Should Be $labname
   }
 }
+
+<#Describe "Private function $targetFunction Integration Tests" -tag unit {
+  It -Pending "[Execution: ] Should create resource group with the correct tags"
+  It -Pending "[Execution: ] Should create the storage account in the correct Azure region"
+}#>
+

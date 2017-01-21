@@ -15,21 +15,16 @@ Import-Module -name .\AzureLab.psm1 -Verbose:$false
 Describe "New-AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\files\AzureRmLocations.xml" TestDrive:}
 
-  Mock -CommandName _EnsureConnected -MockWith {
-    #TODO: Simulate return data properly
-    Return $true
-  } -ModuleName AzureLab
-
-  Mock -CommandName Get-AzureRmLocation -MockWith {
-    $returnData = Import-Clixml -Path "TestDrive:\AzureRmLocations.xml"
-    Return $returnData
-  } -ModuleName AzureLab
-  
   $labName = "PesterTest"
   $labType = "Splunk"
   $azureLocation = "UKSouth"
   $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
 
+  Mock _EnsureConnected {$true} -ModuleName AzureLab
+  Mock Get-AzureRmLocation  {(Import-Clixml -Path "TestDrive:\AzureRmLocations.xml")} -ModuleName AzureLab
+  Mock Find-AzureRmResource {} -ModuleName AzureLab
+  Mock Get-AzureRmStorageAccountNameAvailability {[PSCustomObject]@{NameAvailable = $true}} -ModuleName AzureLab
+  Mock New-AzureRmStorageAccount {} -ModuleName AzureLab 
   $newAzureLab_inputTestCases_Fail = @(
     @{
       scenario = "LabName - does not accept input longer than 61 chars"
@@ -117,27 +112,11 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
 
   It "[Input:     ] Should Pass: <scenario>" -TestCases $newAzureLab_inputTestCases_Pass {
     param ($labName, $labType, $azureLocation, $labPassword)
-
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
-      Return $Null
-    } -ModuleName AzureLab
-
-    Mock -CommandName New-AzureRmResourceGroupDeployment -MockWith {
-      #TODO: Update to better reflect returned object
-      Return $true
-    } -ModuleName AzureLab
-
-    Mock -CommandName New-AzureRmResourceGroup -MockWith {
-      $returnData = @{
-        ResourceGroupName = $LabName
-        Tags = @{
-          AutoLab = $LabName
-        }
-      }
-      Return [PSCustomObject]$returnData
-    } -ModuleName AzureLab
-
-    {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should not throw 
+    Mock  Get-AzureRmResourceGroup  {} -ModuleName AzureLab
+    Mock  New-AzureRmResourceGroupDeployment  {$true} -ModuleName AzureLab
+    Mock  New-AzureRmResourceGroup  {[PSCustomObject]@{ResourceGroupName = $LabName; Tags = @{AutoLab = $LabName;}}} -ModuleName AzureLab
+    {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} |
+     Should not throw 
   }      
 
   # New-AzureLab execution tests
@@ -159,12 +138,12 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
 
 Describe "Remove-AzureLab Unit Tests" -Tag Unit {
   # Mocks - overwritten in It statements as required
-  Mock -CommandName _EnsureConnected -MockWith {
+  Mock  _EnsureConnected  {
     #TODO: Simulate return data properly
     Return $true
   } -ModuleName AzureLab
 
-  Mock -CommandName Get-AzureRmLocation -MockWith {
+  Mock  Get-AzureRmLocation  {
     $returnData = Import-Clixml -Path "TestDrive:\AzureRmLocations.xml"
     Return $returnData
   } -ModuleName AzureLab
@@ -204,11 +183,11 @@ Describe "Remove-AzureLab Unit Tests" -Tag Unit {
 
   It "[Input:     ] Should Pass: <scenario>" -TestCases $removeAzureLab_inputTestCases_Pass {
     param ($labName, $labType, $azureLocation, $labPassword)
-    Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
+    Mock  Remove-AzureRmResourceGroup  {
       Return $true
     } -ModuleName AzureLab
 
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Mock  Get-AzureRmResourceGroup  {
       $returnData = @{
         ResourceGroupName = $LabName
         Tags = @{
@@ -223,7 +202,7 @@ Describe "Remove-AzureLab Unit Tests" -Tag Unit {
 
   # EXECUTION TESTS
   It "[Execution: ] Should throw if the specified Resource Group does not exist" {
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Mock  Get-AzureRmResourceGroup  {
       Return $Null
     } -ModuleName AzureLab
     {Remove-AzureLab -LabName $labName} |
@@ -231,7 +210,7 @@ Describe "Remove-AzureLab Unit Tests" -Tag Unit {
   }
 
   It "[Execution: ] Should throw if specified Resource Group does not have appropriate tag 'AutoLab'" {
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Mock  Get-AzureRmResourceGroup  {
       $returnData = @{
         ResourceGroupName = $LabName
         Tags = @{}
@@ -244,7 +223,7 @@ Describe "Remove-AzureLab Unit Tests" -Tag Unit {
 
   # OUTPUT TESTS
   It "[Output:    ] Returns $false if ResourceGroup does exist after remove attempt" {
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Mock  Get-AzureRmResourceGroup  {
       $returnData = @{
         ResourceGroupName = $LabName
         Tags = @{
@@ -254,7 +233,7 @@ Describe "Remove-AzureLab Unit Tests" -Tag Unit {
       Return [PSCustomObject]$returnData
     } -ModuleName AzureLab
 
-    Mock -CommandName Remove-AzureRmResourceGroup -MockWith {
+    Mock  Remove-AzureRmResourceGroup  {
       Return $false
     } -ModuleName AzureLab
 
@@ -269,7 +248,7 @@ Describe "Azure Lab Integration Tests" -Tag Integration {
   }
 
   It -Pending "Output - should return $true if ResourceGroup does not exist after remove attempted" {
-    Mock -CommandName Get-AzureRmResourceGroup -MockWith {
+    Mock  Get-AzureRmResourceGroup  {
       Return $Null
     } -ParameterFilter {$Name -and $Name -eq $LabName} -ModuleName AzureLab
     Remove-AzureLab -LabName "$labName" | Should Be $true

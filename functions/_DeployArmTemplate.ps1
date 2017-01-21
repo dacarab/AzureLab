@@ -11,7 +11,7 @@
           $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
     }
 
-    Write-Verbose "+ENTERING        _DeployArmTemplate"
+    Write-Verbose "+ENTERING        _DeployArmTemplate $($PSBoundParameters.GetEnumerator())"
   }
 
   End {
