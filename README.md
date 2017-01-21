@@ -24,7 +24,8 @@ A bare minimum of functionality required is one line provisioning / de-provision
 
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
 1. AzureLocations dynamic parameter not appearing properly in intellisense
-1. Add password validation checks in line with machine policy
+1. Add password validation checks in line with Azure machine password complexity requirements
+1. Sort out verbose switch for tests - currently modifying $Global in test harness
 
 ## Functions
 
@@ -51,6 +52,7 @@ Used to define a csv file containing a list of users to provision within AD. Thi
 
 **-ProvisionSMBShare**
 Another parameter that requires additional thought. It will be useful to provision an SMB share within the lab, and may even something that is done as part of the deployment to enable customization of the environment. Will be a *Switch*  parameter.
+
 #### Example New-AzureLab Syntax
 
 New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHostsCount [int] -ADUsersFile [string] -ProvisionSMBShare
@@ -62,3 +64,8 @@ Function that will be used to configure hosts in the lab once they are deployed.
 #### Example Set-AzureLab Syntax
 
 Set-AzureLabConfig -LabName [string] -DSCFile [string]
+
+## Credits
+
+Using the technique outlined by **Dave Wyatt**  for allowing verbose preference to be picked up during Pester tests - see https://blogs.technet.microsoft.com/heyscriptingguy/2014/04/26/weekend-scripter-access-powershell-preference-variables/
+

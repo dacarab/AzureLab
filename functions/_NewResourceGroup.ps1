@@ -12,6 +12,11 @@
   )
 
   Begin {
+    # Temporary fix for VerbosePreference from calling scope not being honoured 
+    If (!$PSBoundParameters.ContainsKey("Verbose")) {
+          $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+    }
+
     Write-Verbose "+ENTERING        _NewResourceGroup"
   }
 
@@ -39,7 +44,7 @@
       }
     }
 
-    Write-Verbose "-EXITING        _NewResourceGroup"
+    Write-Verbose "-EXITING        _NewResourceGroup returning $rgState"
     Return $rgState
   } # End
 } # Function _NewResourceGroup

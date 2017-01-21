@@ -22,6 +22,11 @@ Function New-AzureLab {
   }
 
   Begin { 
+    # Temporary fix for VerbosePreference from calling scope not being honoured 
+    If (!$PSBoundParameters.ContainsKey("Verbose")) {
+          $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+    }
+    
     Write-Verbose "+ENTERING        New-AzureLab"
     $azureContext = _EnsureConnected
     
@@ -40,6 +45,7 @@ Function New-AzureLab {
 
     $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 
+    Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"
     Return $deployState
   }
   
@@ -54,7 +60,10 @@ Function Remove-AzureLab {
     [string]$LabName
   )
 
-  Begin { 
+  Begin {
+    # Temporary fix for VerbosePreference from calling scope not being honoured 
+    $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+
     Write-Verbose "+ENTERING        Remove-AzureLab"
     $azureContext = _EnsureConnected 
   }
@@ -84,7 +93,7 @@ Function Remove-AzureLab {
 } # Function Remove-AzureLab
 
 # HelperFunctions
-Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter 
+Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
   $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
   $parameterAttribute = New-Object Parameter 
@@ -124,4 +133,3 @@ Function _EnsureConnected { # Ensure Connected to Azure
   }
   Return $azureRmContext
 }
-
