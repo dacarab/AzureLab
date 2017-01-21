@@ -8,23 +8,10 @@ param()
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 Clear-Host
-Write-Host -ForegroundColor Red "Removing and re-importing AzureLab Module"
+Write-Host -ForegroundColor yellow "Removing and re-importing AzureLab Module"
 Remove-Module AzureLab -ErrorAction SilentlyContinue -Verbose:$false
 Import-Module -name .\AzureLab.psm1 -Verbose:$false
 
-<#If ($Verbose) {
-  $Global:VerbosePreference = "Continue"
-}
-
-$tags = New-Object System.Collections.ArrayList
-If ($Unit) {
-  $tags.Add("Unit")
-}
-
-If ($Integration){
-  $tags.Add("Integration")
-}
-#>
 Describe "New-AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\files\AzureRmLocations.xml" TestDrive:}
 
@@ -291,5 +278,5 @@ Describe "Azure Lab Integration Tests" -Tag Integration {
 
 $Global:VerbosePreference = "SilentlyContinue"
 
-Write-Host -ForegroundColor Red "Removing AzureLab Module"
+Write-Host -ForegroundColor yellow "Removing AzureLab Module"
 Remove-Module AzureLab -Verbose:$false

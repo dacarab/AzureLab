@@ -2,10 +2,10 @@
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory)]
-    [string]$Name,
+    [string]$LabName,
 
     [Parameter(Mandatory)]
-    [string]$Location,
+    [string]$AzureLocation,
 
     [Parameter(Mandatory)]
     [string]$LabType
@@ -21,20 +21,17 @@
   }
 
   End {
-    # Create ResourceGroup if required
     Write-Verbose "Get          AzureRmResourceGroup -Name $LabName"
     $rgState = Get-AzureRmResourceGroup -Name $LabName -ErrorAction SilentlyContinue
     Write-Verbose "Get          AzureRmResourceGroup returns $rgState"
 
     If (!$rgState) {
       Write-Verbose "New          AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}"
-      $labResourceGroup = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName}
-      Write-Verbose "New          AzureRmResourceGroup returns $labResourceGroup"
+      $rgState = New-AzureRmResourceGroup -Name $LabName -Location $AzureLocation -Tag @{AutoLab = $LabName; LabType = $LabType}
+      Write-Verbose "New          AzureRmResourceGroup returns $rgState"
     }
-    ElseIf (!($rgState.Tags.AutoLab -eq "$Name")) {
-      Throw "The underpinnin resource group for $Name already exists,`
-       but does not have the appropriate AutoLab tag.`
-       Try using a different LabName."
+    ElseIf (!($rgState.Tags.AutoLab -eq "$LabName")) {
+      Throw "The underpinning resource group for $LabName already exists, but does not have the appropriate AutoLab tag. Try using a different LabName."
     }
     Else {
       Write-Warning "Resource Group $LabName exists, and has the appropriate tags. Do you wish to continue?"

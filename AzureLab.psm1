@@ -35,7 +35,7 @@ Function New-AzureLab {
   }
 
   End {
-    $newRgState = _NewResourceGroup -Name $LabName -Location $AzureLocation -LabType $LabType
+    $newRgState = _NewResourceGroup -LabName $LabName -AzureLocation $AzureLocation -LabType $LabType
 
     $newSaState = _NewStorageAccount -Name -ResourceGroup
 
