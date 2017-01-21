@@ -20,12 +20,26 @@ A bare minimum of functionality required is one line provisioning / de-provision
 * Documentation Pass:           *Not Started*
 * Pester Testing Review:        *Not Started*
 
+## Worklist
+
+1. Add DSC functionality
+1. Add report generated at end of deployment
+1. Finalise tests
+1. Update readme
+
 ## Issue Log
 
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
 1. AzureLocations dynamic parameter not appearing properly in intellisense
 1. Add password validation checks in line with Azure machine password complexity requirements
-1. Sort out verbose switch for tests - currently modifying $Global in test harness
+1. Sort out verbose switch for tests - currently not working outside of Pester tests
+1. ARM template needs reviewing
+1. ARM template parameters not implemented correctly
+1. Change name of module to not potentially clash with MS Azure cmdlets
+
+## Desired Enhancements
+
+1. Add cmdlet to list all deployed labs
 
 ## Functions
 
