@@ -17,7 +17,6 @@
   }
 
   End {
-    Try{
     $alphaNumeric = "[^a-zA-Z0-9]"
     $storageAccountNamePrefix = $LabName.ToLower() -replace $alphaNumeric, ''
 
@@ -25,6 +24,7 @@
       $storageAccountNamePrefix = $storageAccountNamePrefix.Substring(0,18)
     }
 
+    $i = 0
     Do {
       $i++
       $suffix = Get-Random -Maximum 999999 -Minimum 100000
@@ -35,9 +35,5 @@
 
     Write-Verbose "-EXITING _LabNameToStorageAccountName RETURNS $storageAccountName"
     Return $storageAccountName
-    }
-    Catch {
-      $_ | Export-Clixml -path $env:temp\error.xml -Depth 5
-    }
   }
 }

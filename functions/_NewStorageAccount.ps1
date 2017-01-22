@@ -30,15 +30,16 @@
       Throw "A storage account for $LabName already exists, but does not have the appropriate AutoLab tag."
     }
     Else {
-      #Try {
+      Try {
         $storageAccountName = _LabNameToStorageAccountName -LabName $LabName
-      #}
-<#      catch {
+      }
+     Catch {
         Throw "Unable to generate a valid storage account name. $($_.Exception.Message)."
-      }#>
+      }
       $storageAccountState = New-AzureRmStorageAccount -ResourceGroupName $LabName -Name $storageAccountName -SkuName Standard_LRS -Location $AzureLocation
       Write-Verbose "New                   AzureStorageAccount $storageAccountName    RETURNS $storageAccountState"
     }
+    
     Write-Verbose "-EXITING _NewStorageAccount          RETURNS $storageAccountState"
     Return $storageAccountState
   }
