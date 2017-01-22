@@ -1,4 +1,4 @@
-﻿Function _LabNameToStorageAccountName {
+﻿function _LabNameToStorageAccountName {
   [CmdletBinding()]
   Param(
     [ValidateLength(1,61)]

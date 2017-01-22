@@ -1,4 +1,4 @@
-﻿Function Helper_Ensure_Connected {
+﻿function Helper_Ensure_Connected {
     [CmdletBinding()]
     Param()
     Try {

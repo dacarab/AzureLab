@@ -42,4 +42,4 @@
     Write-Verbose "-EXITING        _NewResourceGroup returning $resourceGroupState"
     Return $resourceGroupState
   } # End
-} # Function _NewResourceGroup
+} # function _NewResourceGroup

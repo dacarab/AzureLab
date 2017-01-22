@@ -12,6 +12,14 @@ Write-Host -ForegroundColor yellow "Removing and re-importing AzureLab Module"
 Remove-Module AzureLab -ErrorAction SilentlyContinue -Verbose:$false
 Import-Module -name .\AzureLab.psm1 -Verbose:$false
 
+& .\functions\_NewResourceGroup.Tests.ps1
+& .\functions\_NewStorageAccount.Tests.ps1
+& .\functions\_LabNameToStorageAccountName.Tests.ps1
+& .\functions\_GetStoragAccountContext.Tests.ps1
+& .\functions\_UploadLabFiles.Tests.ps1
+& .\functions\_ConfigureArmTemplate.Tests.ps1
+& .\functions\_DeployArmTemplate.Tests.ps1
+
 Describe "New-AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\files\AzureRmLocations.xml" TestDrive:}
 
@@ -20,11 +28,12 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
   $azureLocation = "UKSouth"
   $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
 
+  Mock Get-AzureRmStorageAccountKey {@(,[PSCustomObject]@{value = "KEY1"})} -ModuleName AzureLab
   Mock _EnsureConnected {$true} -ModuleName AzureLab
   Mock Get-AzureRmLocation  {(Import-Clixml -Path "TestDrive:\AzureRmLocations.xml")} -ModuleName AzureLab
   Mock Find-AzureRmResource {} -ModuleName AzureLab
   Mock Get-AzureRmStorageAccountNameAvailability {[PSCustomObject]@{NameAvailable = $true}} -ModuleName AzureLab
-  Mock New-AzureRmStorageAccount {} -ModuleName AzureLab 
+  Mock New-AzureRmStorageAccount {@{StorageAccountName = "teststorage"}} -ModuleName AzureLab 
   $newAzureLab_inputTestCases_Fail = @(
     @{
       scenario = "LabName - does not accept input longer than 61 chars"
@@ -129,13 +138,6 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
   It -Pending "Output - Returns the proper type"
 
 } # Describe New-AzureLAb
-
-& .\functions\_NewResourceGroup.Tests.ps1
-& .\functions\_NewStorageAccount.Tests.ps1
-& .\functions\_LabNameToStorageAccountName.Tests.ps1
-& .\functions\_UploadLabFiles.Tests.ps1
-& .\functions\_ConfigureArmTemplate.Tests.ps1
-& .\functions\_DeployArmTemplate.Tests.ps1
 
 Describe "Remove-AzureLab Unit Tests" -Tag Unit {
   # Mocks - overwritten in It statements as required

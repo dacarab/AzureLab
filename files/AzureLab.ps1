@@ -1,4 +1,4 @@
-﻿Function New-AzureLab {
+﻿function New-AzureLab {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory)]
@@ -35,7 +35,7 @@
   }
   
 }
-Function _NewResourceGroup {
+function _NewResourceGroup {
 
 
 
@@ -73,9 +73,9 @@ Function _NewResourceGroup {
     Write-Verbose "-EXITING         Remove-AzureLab Returning $([PSCustomObject]$returnData.RGCreated)"
     Return [PSCustomObject]$returnData
   } # End
-} # Function New-AzureLab
+} # function New-AzureLab
 
-Function Remove-AzureLab {
+function Remove-AzureLab {
   [CmdletBinding()]
   param(
     [ValidateLength(1,61)]
@@ -111,4 +111,4 @@ Function Remove-AzureLab {
   Write-Verbose "-EXITING         Remove-AzureLab Returning $removeResult"
   Return $removeResult
   }
-} # Function Remove-AzureLab
+} # function Remove-AzureLab

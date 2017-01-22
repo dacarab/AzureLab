@@ -1,7 +1,7 @@
 ﻿# Dotsource all the script files from functions folder that are not pester tests
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
 
-Function New-AzureLab {
+function New-AzureLab {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory)]
@@ -36,8 +36,9 @@ Function New-AzureLab {
 
   End {
     $newRgState = _NewResourceGroup -LabName $LabName -AzureLocation $AzureLocation -LabType $LabType
-    $newSaState = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
-    $uploadLabFilesState = _UploadLabFiles -LabType -ResourceGroup
+    $storageAccount = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
+    $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
+    $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageAccount $storageAccountState
     $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
     $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 
@@ -47,7 +48,7 @@ Function New-AzureLab {
   
 }
 
-Function Remove-AzureLab {
+function Remove-AzureLab {
   [CmdletBinding()]
   param(
     [ValidateLength(1,61)]
@@ -86,10 +87,10 @@ Function Remove-AzureLab {
   Write-Verbose "-EXITING         Remove-AzureLab Returning $removeResult"
   Return $removeResult
   }
-} # Function Remove-AzureLab
+} # function Remove-AzureLab
 
 # HelperFunctions
-Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
+function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
   $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
   $parameterAttribute = New-Object Parameter 
@@ -112,7 +113,7 @@ Function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
   Return $paramDictionary
 }
 
-Function _EnsureConnected { # Ensure Connected to Azure
+function _EnsureConnected { # Ensure Connected to Azure
   [CmdletBinding()]
   Param()
   Try {

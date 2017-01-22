@@ -20,7 +20,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 * Documentation Pass:           *Not Started*
 * Pester Testing Review:        *Not Started*
 
-## Worklist
+## Work List
 
 1. Add DSC functionality
 1. Add report generated at end of deployment
@@ -74,7 +74,7 @@ New-AzureLab -Name [string] -LabType [string] -WindowsHostsCount [int] -LinuxHos
 
 ### Set-AzureLabConfig
 
-Function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage.
+function that will be used to configure hosts in the lab once they are deployed. Initially plan to make this a public function that users can choose to leverage.
 
 #### Example Set-AzureLab Syntax
 
@@ -82,5 +82,4 @@ Set-AzureLabConfig -LabName [string] -DSCFile [string]
 
 ## Credits
 
-Using the technique outlined by **Dave Wyatt**  for allowing verbose preference to be picked up during Pester tests - see https://blogs.technet.microsoft.com/heyscriptingguy/2014/04/26/weekend-scripter-access-powershell-preference-variables/
-
+Using the technique outlined by **Dave Wyatt**  for allowing verbose preference to be picked up during Pester tests - see <https://blogs.technet.microsoft.com/heyscriptingguy/2014/04/26/weekend-scripter-access-powershell-preference-variables/>

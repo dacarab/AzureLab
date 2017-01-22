@@ -1,4 +1,4 @@
-﻿Function _NewStorageAccount {
+﻿function _NewStorageAccount {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory)]
