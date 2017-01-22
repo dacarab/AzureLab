@@ -20,7 +20,7 @@ Import-Module -name .\AzureLab.psm1 -Verbose:$false
 & .\functions\_ConfigureArmTemplate.Tests.ps1
 & .\functions\_DeployArmTemplate.Tests.ps1
 
-Describe "New-AzureLab Unit Tests" -Tag Unit {
+<#Describe "New-AzureLab Unit Tests" -Tag Unit {
   BeforeAll {Copy-Item "$here\files\AzureRmLocations.xml" TestDrive:}
 
   $labName = "PesterTest"
@@ -34,6 +34,9 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
   Mock Find-AzureRmResource {} -ModuleName AzureLab
   Mock Get-AzureRmStorageAccountNameAvailability {[PSCustomObject]@{NameAvailable = $true}} -ModuleName AzureLab
   Mock New-AzureRmStorageAccount {@{StorageAccountName = "teststorage"}} -ModuleName AzureLab 
+  Mock New-AzureStorageContainer {} -ModuleName AzureLab
+  #Mock Set-AzureStorageBlobContent {} -ModuleName AzureLab
+
   $newAzureLab_inputTestCases_Fail = @(
     @{
       scenario = "LabName - does not accept input longer than 61 chars"
@@ -137,7 +140,7 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
   # New-AzureLab output tests
   It -Pending "Output - Returns the proper type"
 
-} # Describe New-AzureLAb
+} # Describe New-AzureLab#>
 
 Describe "Remove-AzureLab Unit Tests" -Tag Unit {
   # Mocks - overwritten in It statements as required

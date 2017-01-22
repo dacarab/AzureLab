@@ -37,6 +37,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 1. ARM template parameters not implemented correctly
 1. Change name of module to not potentially clash with MS Azure cmdlets
 1. Mocks in Pester tests are a mess - need to simplify using ParameterFilter
+1. Currently configuration files for the lab are sitting in the module folder
 
 ## Desired Enhancements
 

@@ -38,7 +38,7 @@ function New-AzureLab {
     $newRgState = _NewResourceGroup -LabName $LabName -AzureLocation $AzureLocation -LabType $LabType
     $storageAccount = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
     $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
-    $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageAccount $storageAccountState
+    $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
     $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
     $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 

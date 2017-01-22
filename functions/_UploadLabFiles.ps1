@@ -2,7 +2,7 @@
     [CmdletBinding()]
     param (
         $LabType,
-        $StorageAccount
+        $StorageContext
     )
     
     begin {
@@ -10,18 +10,22 @@
         If (!$PSBoundParameters.ContainsKey("Verbose")) {
             $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
         }
+
+        Write-Verbose "+ENTERING    _UploadLabFiles $($PSBoundParameters.GetEnumerator())"
     }
     
     end {
-        # Get storage context
-
         # Create a blob container for lab files
-
-        # Grab the local location of blobs to upload
-
+        $storageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
+        Write-Verbose "New                  AzureStorageContainer Returns $storageContainer"
+        
         # Upload the blobs
-
-        # Return 
-
+        $labFilePath = "C:\Users\david\OneDrive - Carabott\Code\AzureLab\files\LabFiles\$LabType"
+        Write-Verbose "Labfilepath $labFilePath"
+        $uploadedBlobs = Get-ChildItem -Path $labFilePath | Set-AzureStorageBlobContent -Container $storageContainer.Name -Context $StorageContext
+        Write-Verbose "Set-AzureStorageBlobContent returned $uploadedBlobs"
+        
+        Write-Verbose "-[Exiting] _UploadLabFiles returning $uploadedBlobs"
+        $uploadedBlobs
     }
 }
