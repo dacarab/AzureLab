@@ -112,7 +112,7 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
 
   It "[Input:     ] Should Pass: <scenario>" -TestCases $newAzureLab_inputTestCases_Pass {
     param ($labName, $labType, $azureLocation, $labPassword)
-    Mock  Get-AzureRmResourceGroup  {} -ModuleName AzureLab
+    Mock  Get-AzureRmResourceGroup  {$false} -ModuleName AzureLab
     Mock  New-AzureRmResourceGroupDeployment  {$true} -ModuleName AzureLab
     Mock  New-AzureRmResourceGroup  {[PSCustomObject]@{ResourceGroupName = $LabName; Tags = @{AutoLab = $LabName;}}} -ModuleName AzureLab
     {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} |
@@ -132,6 +132,7 @@ Describe "New-AzureLab Unit Tests" -Tag Unit {
 
 & .\functions\_NewResourceGroup.Tests.ps1
 & .\functions\_NewStorageAccount.Tests.ps1
+& .\functions\_LabNameToStorageAccountName.Tests.ps1
 & .\functions\_UploadLabFiles.Tests.ps1
 & .\functions\_ConfigureArmTemplate.Tests.ps1
 & .\functions\_DeployArmTemplate.Tests.ps1

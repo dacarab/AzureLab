@@ -30,12 +30,12 @@
       Throw "A storage account for $LabName already exists, but does not have the appropriate AutoLab tag."
     }
     Else {
-      Try {
+      #Try {
         $storageAccountName = _LabNameToStorageAccountName -LabName $LabName
-      }
-      catch {
+      #}
+<#      catch {
         Throw "Unable to generate a valid storage account name. $($_.Exception.Message)."
-      }
+      }#>
       $storageAccountState = New-AzureRmStorageAccount -ResourceGroupName $LabName -Name $storageAccountName -SkuName Standard_LRS -Location $AzureLocation
       Write-Verbose "New                   AzureStorageAccount $storageAccountName    RETURNS $storageAccountState"
     }
@@ -44,37 +44,4 @@
   }
 }
 
-Function _LabNameToStorageAccountName {
-  [CmdletBinding()]
-  Param(
-    [ValidateLength(1,61)]
-    [ValidatePattern("[a-zA-Z0-9_-]")]
-    [Parameter(Mandatory)]
-    [String]$LabName
-  )
 
-  Begin{
-    Write-Verbose "+ENTERING        _LabNameToStorageAccountName $($PSBoundParameters.GetEnumerator())"
-  }
-
-  End{
-    $alphaNumeric = "[^a-zA-Z0-9]"
-    $storageAccountNamePrefix = $LabName -replace $alphaNumeric, ''
-    If ($($storageAccountNamePrefix.Length -gt 18)){
-      $storageAccountNamePrefix = $storageAccountName.Substring(0,18)
-    }
-
-    Do {
-      $suffix = Get-Random -Maximum 999999 -Minimum 100000
-      $storageAccountName = $storageAccountNamePrefix + $suffix
-      $result = Get-AzureRmStorageAccountNameAvailability -Name $storageAccountName
-      If (!$($result.NameAvailable)) {
-        Write-Warning "Naming clash when trying to use storage Account Name $storageAccountName"
-        Write-Warning "Trying again..."
-      }
-    } while (!$($result.NameAvailable))
-
-    Write-Verbose "-EXITING _LabNameToStorageAccountName RETURNS $storageAccountName"
-    Return $storageAccountName
-  }
-}
