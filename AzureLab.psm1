@@ -87,7 +87,7 @@ function Remove-AzureLab {
   Write-Verbose "-EXITING         Remove-AzureLab Returning $removeResult"
   Return $removeResult
   }
-} # function Remove-AzureLab
+} 
 
 # HelperFunctions
 function _DynamicParamAzureLocation { # Dynamic AzureLocation parameter
