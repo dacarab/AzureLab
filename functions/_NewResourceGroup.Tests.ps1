@@ -34,7 +34,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     # Do nothing
   }
 
-  It  "[Execution:  ] Should not create a resource group if one already exists" {
+  It  "[Execution: ] Should not create a resource group if one already exists" {
     _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType
     Assert-MockCalled New-AzureRmResourceGroup  -Times 0
   }
@@ -43,7 +43,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Return $Null
   }
 
-  It  "[Execution:  ] Should create a resource group if one does not exist" {
+  It  "[Execution: ] Should create a resource group if one does not exist" {
     _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType
     Assert-MockCalled New-AzureRmResourceGroup  -Times 1
   }
@@ -56,7 +56,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Return [PSCustomObject]$returnData
   }
   
-  It  "[Execution:  ] Should throw if a resource group exists without appropriate tags" {
+  It  "[Execution: ] Should throw if a resource group exists without appropriate tags" {
     {_NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType} |
      Should throw "The underpinning resource group for TestLab already exists, but does not have the appropriate AutoLab tag."
   }
@@ -75,7 +75,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Return [PSCustomObject]$returnData
   }
 
-  It  "[Execution:  ] Should throw if the user chooses not to proceed when resource group with appropriate tags exists" { 
+  It  "[Execution: ] Should throw if the user chooses not to proceed when resource group with appropriate tags exists" { 
     {_NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType} |
      Should throw "Lab creation terminated by user. Try using a different LabName." 
   }
@@ -84,7 +84,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Return $Null
   }
 
-  It  "[Output:     ] Should output state of resource group" {
+  It  "[Output:    ] Should output state of resource group" {
     $returned = _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType 
     $($returned.ResourceGroupName) | Should Be $labName
     $($returned.Tags.AutoLab) | Should Be $labname

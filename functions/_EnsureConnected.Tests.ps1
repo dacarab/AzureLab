@@ -1,10 +1,15 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+﻿begin {
+    # Default test variables
+    $here = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
     get-childitem $PSScriptRoot -Exclude "*tests*" | ForEach-Object {. $_.FullName}
-$targetFunction = $sut -replace '\.ps1', ''
+}
 
-Describe "_EnsureConnected" {
-    It "does something useful" {
-        $true | Should Be $false
+end {
+    Describe "Private function $targetFunction Unit Tests" -tag unit {
+        It "[Execution: ] Prompt user to connect to Azure" {}
     }
+<#    Describe "Private function $targetFunction Unit Tests" -tag integration {
+        It "[Execution: ] " {}
+    }#>
 }
