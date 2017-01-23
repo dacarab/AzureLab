@@ -1,6 +1,15 @@
 ﻿# Dotsource all the script files from functions folder that are not pester tests
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
 
+# Module Variables
+$LabTemplatePath = "$PSScriptRoot\files\LabFiles"
+$Labs = @{
+  Splunk = @{
+    LabType = "Splunk"
+    TemplatePath = "$LabTemplatePath\Splunk\Splunk.json"
+  }
+}
+
 function New-AzureLab {
   [CmdletBinding()]
   param(
@@ -39,8 +48,8 @@ function New-AzureLab {
     $storageAccount = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
     $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
     $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
-    $configureTemplateState = _GenerateTemplateParamHash-LabType -RealIP
-    $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
+    $templateParamHash = _GenerateTemplateParamHash-LabType -RealIP
+    $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"
     Return $deployState
