@@ -3,7 +3,6 @@
   $paramAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
   $parameterAttribute = New-Object Parameter 
   $parameterAttribute.Mandatory = $true
-  $parameterAttribute.ParameterSetName = "Default"
   $parameterAttribute.Position = 1
   $paramAttributes.Add($parameterAttribute)
 
