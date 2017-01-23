@@ -1,6 +1,11 @@
 ﻿function _EnsureConnected { # Ensure Connected to Azure
   [CmdletBinding()]
   Param()
+    # Temporary fix for VerbosePreference from calling scope not being honoured 
+    If (!$PSBoundParameters.ContainsKey("Verbose")) {
+          $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+    }
+
   Try {
       Get-AzureRmContext -ErrorAction Stop
   }
