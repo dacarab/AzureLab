@@ -2,6 +2,12 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "windows01_dscConfigurationFunction": {
+      "type": "string"
+    },
+    "windows01_dscModulesUrl":{
+      "type": "string"
+    },
     "saLabType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
@@ -216,7 +222,28 @@
           }]
         }
       },
-      "resources": []
+      "resources": [{
+        "name": "windows01_dsc",
+        "type": "extensions",
+        "location": "uksouth",
+        "apiVersion": "2015-06-15",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachines_win_web_0_name'))]"
+        ],
+        "tags": {
+          "displayName": "Windows01_DSC"
+        },
+        "properties": {
+          "publisher": "Microsoft.Powershell",
+          "type": "DSC",
+          "typeHandlerVersion": "2.15",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "modulesUrl": "[parameters('windows01_dscModulesUrl')]",
+            "configurationFunction": "[parameters('windows01_dscConfigurationFunction')]"
+          }
+        }
+      }]
     },
     {
       "name": "[variables('vmLinNicName')]",
@@ -287,7 +314,7 @@
               "direction": "Inbound"
             }
           },
-                    {
+          {
             "name": "Allow-SSH-External",
             "properties": {
               "description": "Allows SSH traffic from Management IP ",
@@ -341,7 +368,7 @@
               "access": "Allow",
               "priority": 140,
               "direction": "Inbound"
-            } 
+            }
           },
           {
             "name": "Allow-HTTP-Event-Collector",

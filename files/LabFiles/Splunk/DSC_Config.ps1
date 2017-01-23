@@ -22,13 +22,6 @@ Configuration LabAD {
             Ensure = "Present"
         }
 
-        xDNSServerAddress DNSServerIP
-        {
-            Address = "192.168.0.250"
-            AddressFamily = "IPv4"
-            InterfaceAlias = "Ethernet"
-        }
-
         xADDomain LabName.Local {
             DomainAdministratorCredential = $Cred
             DomainName = "CannedLogic.Local"
