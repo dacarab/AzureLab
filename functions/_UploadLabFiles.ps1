@@ -15,14 +15,24 @@
     }
     
     end {
-        # Create a blob container for lab files
-        $storageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
-        Write-Verbose "New                  AzureStorageContainer Returns $storageContainer"
+
+        $returnedStorageContainer = Get-AzureStorageContainer -name "labfiles" -Context $StorageContext
+        "Get-AzureStorageContainer returned $returnedStorageContainer" | Write-Verbose -Verbose
+
+        If ($returnedStorageContainer) {
+            $labStorageContainer = $returnedStorageContainer
+        }
+        Else {
+            # Create a blob container for lab files
+            $labStorageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
+            Write-Verbose "New                  AzureStorageContainer Returns $storageContainer"
+        }
         
         # Upload the blobs
         $labFilePath = "C:\Users\david\OneDrive - Carabott\Code\AzureLab\files\LabFiles\$LabType"
         Write-Verbose "Labfilepath $labFilePath"
-        $uploadedBlobs = Get-ChildItem -Path $labFilePath | Set-AzureStorageBlobContent -Container $storageContainer.Name -Context $StorageContext
+        
+        $uploadedBlobs = Get-ChildItem -Path $labFilePath | Set-AzureStorageBlobContent -Container $labStorageContainer.Name -Context $StorageContext
         Write-Verbose "Set-AzureStorageBlobContent returned $uploadedBlobs"
         
         Write-Verbose "-[Exiting] _UploadLabFiles returning $uploadedBlobs"

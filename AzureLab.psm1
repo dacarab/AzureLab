@@ -6,7 +6,7 @@ $LabTemplatePath = "$PSScriptRoot\files\LabFiles"
 $Labs = @{
   Splunk = @{
     LabType = "Splunk"
-    TemplatePath = "$LabTemplatePath\Splunk\Splunk.json"
+    TemplatePath = "$LabTemplatePath\Splunk\SplunkLab.json"
   }
 }
 

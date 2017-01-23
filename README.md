@@ -27,8 +27,19 @@ A bare minimum of functionality required is one line provisioning / de-provision
 1. Finalise tests
 1. Update readme
 
+## Missing tests
+
+1. No check to see if arm templates exists
+1. No check to see if DSC files exist
+1. Check that storage account has the correct tags
+1. Check that container already exists error handled
+1. Input and output type checks
+
 ## Issue Log
 
+1. No progress bars to give user feedback
+1. Handle error if container already exists
+1. Handle validation errors for invalid arm template
 1. AzureLocations dynamic parameter code needs revising - consider caching on module load
 1. AzureLocations dynamic parameter not appearing properly in intellisense
 1. Add password validation checks in line with Azure machine password complexity requirements

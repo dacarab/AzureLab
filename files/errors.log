@@ -1,0 +1,20 @@
+New-AzureRmResourceGroupDeployment : Could not find file 'C:\Users\david\OneDrive - 
+Carabott\Code\AzureLab\files\LabFiles\Splunk\Splunk.json'.
+At C:\Users\david\OneDrive - Carabott\Code\AzureLab\functions\_DeployArmTemplate.ps1:19 char:21
++ ... aToReturn = New-AzureRmResourceGroupDeployment -ResourceGroupName $La ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : CloseError: (:) [New-AzureRmResourceGroupDeployment], FileNotFoundExceptio 
+   n
+    + FullyQualifiedErrorId : Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.NewAzureRe 
+   sourceGroupDeploymentCmdlet
+
+
+A storage account for test already exists, but does not have the appropriate AutoLab tag.
+At C:\Users\david\OneDrive - Carabott\Code\AzureLab\functions\_NewStorageAccount.ps1:30 char:7
++       Throw "A storage account for $LabName already exists, but does  ...
++       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (A storage accou...te AutoLab tag.:String) [], RuntimeEx 
+   ception
+    + FullyQualifiedErrorId : A storage account for test already exists, but does not have the appropria 
+   te AutoLab tag.
+
