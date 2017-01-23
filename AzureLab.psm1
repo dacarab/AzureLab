@@ -39,7 +39,7 @@ function New-AzureLab {
     $storageAccount = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
     $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
     $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
-    $configureTemplateState = _ConfigureArmTemplate -LabType -RealIP
+    $configureTemplateState = _GenerateTemplateParamHash-LabType -RealIP
     $deployState = _DeployArmTemplate -ResourceGroupName $LabName -LabType $LabType -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"

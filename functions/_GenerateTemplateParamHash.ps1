@@ -1,4 +1,4 @@
-﻿function _ConfigureArmTemplate {
+﻿function _GenerateTemplateParamHash{
     [CmdletBinding()]
     param (
         [Parameter(AttributeValues)]
@@ -16,7 +16,7 @@
             $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
         }
 
-        Write-Verbose "+[Entering]  _ConfigureArmTemplate   $($PSBoundParameters.GetEnumerator())"
+        Write-Verbose "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator())"
     }
     
     process {
