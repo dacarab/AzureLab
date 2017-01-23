@@ -18,7 +18,7 @@ Import-Module -name .\AzureLab.psm1 -Verbose:$false
 & .\functions\_GetStoragAccountContext.Tests.ps1
 & .\functions\_UploadLabFiles.Tests.ps1
 & .\functions\_GetRealIP.Tests.ps1
-& .\functions\_ConfigureArmTemplate.Tests.ps1
+& .\functions\_GenerateTemplateParamHash.Tests.ps1
 & .\functions\_DeployArmTemplate.Tests.ps1
 
 <#Describe "New-AzureLab Unit Tests" -Tag Unit {

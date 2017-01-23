@@ -33,10 +33,10 @@
       "defaultValue": "crapmin",
       "minLength": 1
     },
-    "labPassword": {
+    "LabPassword": {
       "type": "securestring"
     },
-    "ssh_remoteIP": {
+    "ManagementIP": {
       "type": "string",
       "defaultValue": "82.26.67.107/32"
     },
@@ -276,11 +276,11 @@
         "securityRules": [{
             "name": "rdp-rule",
             "properties": {
-              "description": "Allow RDP",
+              "description": "Allow RDP from Management IP",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "3389",
-              "sourceAddressPrefix": "Internet",
+              "sourceAddressPrefix": "[parameters('ManagementIP')]",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 160,
@@ -304,11 +304,11 @@
                     {
             "name": "Allow-SSH-External",
             "properties": {
-              "description": "Allows SSH traffic from Azure vnet",
+              "description": "Allows SSH traffic from Management IP ",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
-              "sourceAddressPrefix": "[parameters('ssh_remoteip')]",
+              "sourceAddressPrefix": "[parameters('ManagementIP')]",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 170,
@@ -316,13 +316,13 @@
             }
           },
           {
-            "name": "Allow-HTTP",
+            "name": "Allow-HTTP-External-Port_8000",
             "properties": {
               "description": "Allows HTTP traffic on port 8000",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "8000",
-              "sourceAddressPrefix": "*",
+              "sourceAddressPrefix": "[parameters('ManagementIP')]",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 110,
@@ -330,18 +330,32 @@
             }
           },
           {
-            "name": "Allow-HTTPS",
+            "name": "Allow-HTTPS-Internal",
             "properties": {
               "description": "Allows HTTPS traffic on port 443",
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "443",
-              "sourceAddressPrefix": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 120,
               "direction": "Inbound"
             }
+          },
+          {
+            "name": "Allow-HTTPS-External",
+            "properties": {
+              "description": "Allows HTTPS traffic on port 443",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "[parameters('ManagementIP')]",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            } 
           },
           {
             "name": "Allow-HTTP-Event-Collector",
@@ -350,7 +364,7 @@
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "8088",
-              "sourceAddressPrefix": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 130,

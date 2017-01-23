@@ -1,13 +1,17 @@
 ﻿function _GenerateTemplateParamHash{
     [CmdletBinding()]
     param (
-        [Parameter(AttributeValues)]
-        [ParameterType]
+        [Parameter(Mandatory)]
+        [String]
         $LabType,
 
-        [Parameter(AttributeValues)]
-        [ParameterType]
-        $RealIP
+        [Parameter(Mandatory)]
+        [String]
+        $RealIp,
+
+        [Parameter(Mandatory)]
+        [securestring]
+        $LabPassword
     )
     
     begin {
@@ -18,10 +22,14 @@
 
         Write-Verbose "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator())"
     }
-    
-    process {
-    }
-    
+
     end {
+        $dataToReturn = @{
+            ManagementIP = $RealIp
+            LabPassword = $LabPassword
+        }
+
+        "-[Exiting] _GenerateTemplateParamHash returning $returnData" | Write-Verbose
+        $dataToReturn
     }
 }
