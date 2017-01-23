@@ -1,5 +1,8 @@
 ﻿# Default test variables
-$targetFunction = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.ps1', ''
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+    get-childitem $PSScriptRoot -Exclude "*tests*" | ForEach-Object {. $_.FullName}
+$targetFunction = $sut -replace '\.ps1', ''
 $labName = "PesterTest"
 $labType = "Splunk"
 $labpassword = ConvertTo-SecureString -String "P@55word" -AsPlainText -Force
@@ -7,9 +10,16 @@ $templateParamHash = @{
     ManagementIP = "2.2.2.2"
     LabPassword = $labpassword
 }
+$LabTemplatePath = "$PSScriptRoot\files\LabFiles"
+$Labs = @{
+  Splunk = @{
+    LabType = "Splunk"
+    TemplatePath = "$LabTemplatePath\Splunk\Splunk.json"
+  }
+}
 
 Describe "Private function $targetFunction Unit Tests" -tag unit {
-    Mock New-AzureRmResourceGroupDeployment {"Deployed"} -ModuleName AzureLab
+    Mock New-AzureRmResourceGroupDeployment {"Deployed"} 
 
     It "[Execute:   ] Should not throw" {
         {_DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash} |

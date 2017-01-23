@@ -6,7 +6,7 @@
     $labName = "PesterTest"
     $labType = "Splunk"
     $azureLocation = "UKSouth"
-    $password = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
+    $labPassword = ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force
     $failInputTest = @(
         @{
         scenario = "LabName - does not accept input longer than 61 chars"
@@ -14,7 +14,7 @@
         labName = "62626262626262626262626262626262626262626262626262626262626262"
         labType = "Splunk"
         azureLocation = "UKSouth"
-        labPassword = $password
+        labPassword = $labPassword
         shouldBlock = {}
         },
         @{
@@ -23,7 +23,7 @@
         labName = "$ShouldNotBeValid"
         labType = "Splunk"
         azureLocation = "UKSouth"
-        labPassword = $password
+        labPassword = $labPassword
         shouldBlock = {}
         },      
         @{
@@ -32,7 +32,7 @@
         labName = "TestLab"
         labType = "Splunk"
         azureLocation = $Null
-        labPassword = $password
+        labPassword = $labPassword
         },
         @{
         scenario = "AzureLocation - does not accept non-existent Azure regions"
@@ -40,7 +40,7 @@
         labName = "TestLab"
         labType = "Splunk"
         azureLocation = "NonExistentAzureLocation"
-        labPassword = $password
+        labPassword = $labPassword
         },
         @{
         scenario = "LabType - does not accept missing parameter"
@@ -48,7 +48,7 @@
         labName = "TestLab"
         #labType = $Null
         azureLocation = "UKSouth"
-        labPassword = $password
+        labPassword = $labPassword
         },
         @{
         scenario = "LabType - does not accept non-existent LabType"
@@ -56,7 +56,7 @@
         labName = "TestLab"
         labType = "NonExistentLabType"
         azureLocation = "UKSouth"
-        labPassword = $password
+        labPassword = $labPassword
         },
         @{
         scenario = "LabPassword - does not accept missing parameter"
@@ -81,7 +81,7 @@
         labName = "_Underscores-and-Hyphens_"
         labType = "Splunk"
         azureLocation = "UKSouth"
-        labPassword = $password
+        labPassword = $labPassword
         }
     )
 }
@@ -97,10 +97,10 @@ end {
     Mock _UploadLabFiles {} -AzureLab
     Mock _GenerateTemplateParamHash {} -AzureLab
     Mock _DeployArmTemplate {} -AzureLab
-    #Mock _DynamicParamAzureLocation {} -AzureLab
-    Mock _GetRealIP {} -AzureLab
+    Mock _EnsureConnected {} -AzureLab
+    Mock _GetRealIP {"3.3.3.3"} -AzureLab
+    Mock Get-AzureRmLocation {[PSCustomObject]@{Location = "UKSouth"}} -AzureLab
 
-    # New-AzureLab input tests
     It "[Input:     ] Should Fail: <scenario>" -TestCases $failInputTest {
         param ($labName, $labType, $azureLocation, $labPassword, $expected)
         {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} | Should throw $expected
@@ -108,20 +108,18 @@ end {
 
     It "[Input:     ] Should Pass: <scenario>" -TestCases $passInputTest {
         param ($labName, $labType, $azureLocation, $labPassword)
-        Mock  Get-AzureRmResourceGroup  {$false} -ModuleName AzureLab
-        Mock  New-AzureRmResourceGroupDeployment  {$true} -ModuleName AzureLab
-        Mock  New-AzureRmResourceGroup  {[PSCustomObject]@{ResourceGroupName = $LabName; Tags = @{AutoLab = $LabName;}}} -ModuleName AzureLab
+        Mock  Get-AzureRmResourceGroup  {$false}
+        Mock  New-AzureRmResourceGroupDeployment  {$true}
+        Mock  New-AzureRmResourceGroup  {[PSCustomObject]@{ResourceGroupName = $LabName; Tags = @{AutoLab = $LabName;}}}
         {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} |
         Should not throw 
     }      
 
-    # New-AzureLab execution tests
     It "[Execution: ] Does not throw when provided example parameters" {
-        {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $password} |
+        {New-AzureLab -LabName $labName -LabType $labType -AzureLocation $azureLocation -LabPassword $labPassword} |
         Should not throw
     }
 
-    # New-AzureLab output tests
     It -Pending "Output - Returns the proper type"
 
     } # Describe New-AzureLab

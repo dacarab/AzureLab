@@ -1,4 +1,7 @@
-﻿$targetFunction = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.ps1', ''
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+    get-childitem $PSScriptRoot -Exclude "*tests*" | ForEach-Object {. $_.FullName}
+$targetFunction = $sut -replace '\.ps1', ''
 
 # Default testing variables
 $LabType = "Splink"

@@ -1,4 +1,7 @@
-﻿$targetFunction = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.ps1', ''
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+    get-childitem $PSScriptRoot -Exclude "*tests*" | ForEach-Object {. $_.FullName}
+$targetFunction = $sut -replace '\.ps1', ''
 
 Describe "Private function $targetFunction Unit Tests" -tag unit {
   $labName = "TestLab"
@@ -13,7 +16,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
       }
     }
     Return [PSCustomObject]$returnData
-  } -ModuleName AzureLab 
+  } 
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
     $returnData = @{
@@ -23,26 +26,26 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
       }
     }
     Return [PSCustomObject]$returnData
-  } -ModuleName AzureLab
+  }
 
-  Mock Read-Host {"y"} -ModuleName AzureLab
+  Mock Read-Host {"y"}
 
   Mock -CommandName Write-Warning -MockWith {
     # Do nothing
-  } -ModuleName AzureLab
+  }
 
   It  "[Execution:  ] Should not create a resource group if one already exists" {
     _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType
-    Assert-MockCalled New-AzureRmResourceGroup -ModuleName AzureLab -Times 0
+    Assert-MockCalled New-AzureRmResourceGroup  -Times 0
   }
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
     Return $Null
-  } -ModuleName AzureLab
+  }
 
   It  "[Execution:  ] Should create a resource group if one does not exist" {
     _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType
-    Assert-MockCalled New-AzureRmResourceGroup -ModuleName AzureLab -Times 1
+    Assert-MockCalled New-AzureRmResourceGroup  -Times 1
   }
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
@@ -51,7 +54,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
       Tags = @{}
     }
     Return [PSCustomObject]$returnData
-  } -ModuleName AzureLab
+  }
   
   It  "[Execution:  ] Should throw if a resource group exists without appropriate tags" {
     {_NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType} |
@@ -60,7 +63,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
 
   Mock -CommandName Read-Host -MockWith {
     Return "n"
-  } -ModuleName AzureLab
+  }
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
     $returnData = @{
@@ -70,7 +73,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
       }
     }
     Return [PSCustomObject]$returnData
-  } -ModuleName AzureLab
+  }
 
   It  "[Execution:  ] Should throw if the user chooses not to proceed when resource group with appropriate tags exists" { 
     {_NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType} |
@@ -79,7 +82,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
 
   Mock -CommandName Get-AzureRmResourceGroup -MockWith {
     Return $Null
-  } -ModuleName AzureLab
+  }
 
   It  "[Output:     ] Should output state of resource group" {
     $returned = _NewResourceGroup -LabName $labName -AzureLocation $azureLocation -LabType $labType 

@@ -20,7 +20,7 @@
             $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
         }
 
-        Write-Verbose "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator())"
+        "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator())" | Write-Verbose 
     }
 
     end {
@@ -29,7 +29,7 @@
             LabPassword = $LabPassword
         }
 
-        "-[Exiting] _GenerateTemplateParamHash returning $returnData" | Write-Verbose
+        "-[Exiting] _GenerateTemplateParamHash returning $dataToReturn" | Write-Verbose
         $dataToReturn
     }
 }
