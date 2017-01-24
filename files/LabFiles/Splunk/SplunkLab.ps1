@@ -1,9 +1,4 @@
-Configuration LabAD {
-    param(
-        [PSCredential]$Cred,
-        [string]$DC,
-        [string]$LabName
-    )
+Configuration SplunkLab {
 
     Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
@@ -23,9 +18,9 @@ Configuration LabAD {
         }
 
         xADDomain LabName.Local {
-            DomainAdministratorCredential = $Cred
-            DomainName = "CannedLogic.Local"
-            SafemodeAdministratorPassword = $Cred
+            DomainAdministratorCredential = $LabPassword
+            DomainName = "$LabName.Local"
+            SafemodeAdministratorPassword = $LabPassword
             DependsOn = "[WindowsFeature]AD-Domain-Services","[WindowsFeature]DNS"
         }
     }

@@ -7,7 +7,17 @@ $Labs = @{
   Splunk = @{
     LabType = "Splunk"
     TemplatePath = "$LabTemplatePath\Splunk\SplunkLab.json"
+    Windows01_DSCFunction = $Windows01_DSCFunction
   }
+}
+
+$LabConfigData = @{
+    Labs = @{
+        Splunk = @{
+            LabType = "Splunk"
+            TemplatePath = "$LabTemplatePath\Splunk\SplunkLab.json"
+        }
+    }
 }
 
 function Get-CallerPreference {

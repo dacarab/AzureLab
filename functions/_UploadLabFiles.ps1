@@ -17,7 +17,7 @@
     end {
 
         $returnedStorageContainer = Get-AzureStorageContainer -name "labfiles" -Context $StorageContext
-        "Get-AzureStorageContainer returned $returnedStorageContainer" | Write-Verbose -Verbose
+        "Get-AzureStorageContainer returned $returnedStorageContainer" | Write-Verbose 
 
         If ($returnedStorageContainer) {
             $labStorageContainer = $returnedStorageContainer
@@ -31,11 +31,21 @@
         # Upload the blobs
         $labFilePath = "C:\Users\david\OneDrive - Carabott\Code\AzureLab\files\LabFiles\$LabType"
         Write-Verbose "Labfilepath $labFilePath"
-        
+
+        # Check the correct files are in $labFilePath
+        Test-Path -path  $labFilePath\*.json, $labFilePath\*.ps1, $labFilePath\*.psd1 | ForEach-Object {
+            If (!$_) {
+                Throw "Required files not present in '$labFilePath'."
+            }
+        }
+
+
         $uploadedBlobs = Get-ChildItem -Path $labFilePath | Set-AzureStorageBlobContent -Container $labStorageContainer.Name -Context $StorageContext
         Write-Verbose "Set-AzureStorageBlobContent returned $uploadedBlobs"
         
         Write-Verbose "-[Exiting] _UploadLabFiles returning $uploadedBlobs"
         $uploadedBlobs
+
+        #TODO: Grab the URL and SAS Token for the uploaded DSC config
     }
 }

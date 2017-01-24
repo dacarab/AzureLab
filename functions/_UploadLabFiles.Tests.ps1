@@ -14,6 +14,10 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Mock Get-ChildItem {[PSCustomObject]@{FullName = "File1"}}
     Mock Get-AzureStorageContainer {}
 
+    It "[Execution: ] Should throw if Lab files do not exist" {
+        {_UploadLabFiles -LabType "wibbler" -StorageContext $storageContext } | should throw
+    }
+
     It "[Execution: ] Should create blob container for lab files if one DOES NOT exist" {
         $returned = _UploadLabFiles -LabType $labType -StorageContext $storageContext 
         Assert-MockCalled New-AzureStorageContainer -times 1

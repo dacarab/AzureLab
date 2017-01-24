@@ -2,11 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "windows01_dscConfigurationFunction": {
+    "Windows01_DSCFunction": {
       "type": "string"
     },
-    "windows01_dscModulesUrl":{
+    "ModulesURL":{
       "type": "string"
+    },
+    "SasToken" :{
+      "type": "securestring"
     },
     "saLabType": {
       "type": "string",
@@ -239,8 +242,12 @@
           "typeHandlerVersion": "2.15",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "modulesUrl": "[parameters('windows01_dscModulesUrl')]",
-            "configurationFunction": "[parameters('windows01_dscConfigurationFunction')]"
+            "modulesUrl": "[parameters('ModulesURL')]",
+            "configurationFunction": "[parameters('windows01_dscConfigurationFunction')]",
+            "sasToken": "[parameters('SasToken')]"
+          },
+          "protectedSettings": {
+            "LabPassword": "[parameters('LabPassword')]"
           }
         }
       }]

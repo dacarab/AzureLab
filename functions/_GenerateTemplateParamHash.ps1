@@ -27,6 +27,9 @@
         $dataToReturn = @{
             ManagementIP = $RealIp
             LabPassword = $LabPassword
+            ModulesURL = $ModuleURL
+            Windows01_DSCFunction = $Windows01_DSCFunction
+            SasToken = $SasToken
         }
 
         "-[Exiting] _GenerateTemplateParamHash returning $dataToReturn" | Write-Verbose
