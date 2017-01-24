@@ -37,7 +37,7 @@
     $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
     $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
     $realIP = _GetRealIP
-    $templateParamHash = _GenerateTemplateParamHash -LabType $LabType -LabPassword $LabPassword -RealIP $realIP
+    $templateParamHash = _GenerateTemplateParamHash -LabName $LabName -LabType $LabType -LabPassword $LabPassword -RealIP $realIP
     $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"

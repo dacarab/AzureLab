@@ -7,6 +7,10 @@
 
         [Parameter(Mandatory)]
         [String]
+        $LabName,
+
+        [Parameter(Mandatory)]
+        [String]
         $RealIp,
 
         [Parameter(Mandatory)]
@@ -28,8 +32,9 @@
             ManagementIP = $RealIp
             LabPassword = $LabPassword
             ModulesURL = $ModuleURL
-            Windows01_DSCFunction = $Windows01_DSCFunction
+            DomainController_DSCFunction = $DomainController_DSCFunction
             SasToken = $SasToken
+            LabName = $LabName
         }
 
         "-[Exiting] _GenerateTemplateParamHash returning $dataToReturn" | Write-Verbose

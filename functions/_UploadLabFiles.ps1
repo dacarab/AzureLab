@@ -29,7 +29,7 @@
         }
         
         # Upload the blobs
-        $labFilePath = "C:\Users\david\OneDrive - Carabott\Code\AzureLab\files\LabFiles\$LabType"
+        $labFilePath = "$($LabConfigData.LabFilesPath)\$LabType"
         Write-Verbose "Labfilepath $labFilePath"
 
         # Check the correct files are in $labFilePath

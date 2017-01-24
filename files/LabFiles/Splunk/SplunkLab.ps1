@@ -1,11 +1,14 @@
-Configuration SplunkLab {
-
+Configuration DomainController {
+    param (
+        [string]$LabName,
+        [securestring]$LabPassword
+    )
     Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -Modulename xDnsServer
     
-    node $DC {    
+    node LocalHost {    
 
         WindowsFeature DNS {
             Name = "DNS"

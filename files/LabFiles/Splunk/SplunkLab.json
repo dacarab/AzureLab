@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "Windows01_DSCFunction": {
+    "DomainController_DSCFunction": {
       "type": "string"
     },
     "ModulesURL":{
@@ -10,6 +10,9 @@
     },
     "SasToken" :{
       "type": "securestring"
+    },
+    "LabName": {
+      "type": "string"
     },
     "saLabType": {
       "type": "string",
@@ -244,7 +247,8 @@
           "settings": {
             "modulesUrl": "[parameters('ModulesURL')]",
             "configurationFunction": "[parameters('windows01_dscConfigurationFunction')]",
-            "sasToken": "[parameters('SasToken')]"
+            "sasToken": "[parameters('SasToken')]",
+            "properties": "[parameters('LabName')]"
           },
           "protectedSettings": {
             "LabPassword": "[parameters('LabPassword')]"

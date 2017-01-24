@@ -2,21 +2,12 @@
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
 
 # Module Variables
-$LabTemplatePath = "$PSScriptRoot\files\LabFiles"
-$Labs = @{
-  Splunk = @{
-    LabType = "Splunk"
-    TemplatePath = "$LabTemplatePath\Splunk\SplunkLab.json"
-    Windows01_DSCFunction = $Windows01_DSCFunction
-  }
-}
-
 $LabConfigData = @{
-    Labs = @{
-        Splunk = @{
-            LabType = "Splunk"
-            TemplatePath = "$LabTemplatePath\Splunk\SplunkLab.json"
-        }
+    LabFilesPath = "$PSScriptRoot\files\LabFiles"
+    SplunkLab = @{
+        LabType = "Splunk"
+        TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
+        DomainController_DSCFunction = "SplunkLab.ps1//DomainController"
     }
 }
 

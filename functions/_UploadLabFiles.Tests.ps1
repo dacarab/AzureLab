@@ -2,6 +2,14 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 $targetFunction = $sut -replace '\.ps1', ''
+$LabConfigData = @{
+    LabFilesPath = "$PSScriptRoot\..\files\LabFiles"
+    SplunkLab = @{
+        LabType = "Splunk"
+        TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
+    }
+}
+
 
 Describe "Private function $targetFunction Unit Tests" -tag unit {
     $labType = "Splunk"

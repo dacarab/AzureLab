@@ -37,6 +37,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 
 ## Issue Log
 
+1. Nasty fix in _UploadLabFiles Tests to get access to LabConfig hash
 1. No progress bars to give user feedback
 1. Handle error if container already exists
 1. Handle validation errors for invalid arm template
