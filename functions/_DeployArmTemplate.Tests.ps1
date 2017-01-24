@@ -12,10 +12,10 @@
         LabPassword = $labpassword
     }
     $LabTemplatePath = "$PSScriptRoot\files\LabFiles"
-    $Labs = @{
+    $LabConfigData = @{
         Splunk = @{
-            LabType = "Splunk"
-            TemplatePath = "$LabTemplatePath\Splunk\Splunk.json"
+            TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
+            DomainController_DSCFunction = "SplunkLab.ps1//DomainController"
         }
     }
 }

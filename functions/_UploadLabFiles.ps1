@@ -6,7 +6,7 @@
     )
     
     begin {
-        # Temporary fix for VerbosePreference from calling scope not being honoured 
+
         If (!$PSBoundParameters.ContainsKey("Verbose")) {
             $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
         }
@@ -16,36 +16,55 @@
     
     end {
 
-        $returnedStorageContainer = Get-AzureStorageContainer -name "labfiles" -Context $StorageContext
+        $returnedStorageContainer = Get-AzureStorageContainer -name "labfiles" -Context $StorageContext -ErrorAction SilentlyContinue
         "Get-AzureStorageContainer returned $returnedStorageContainer" | Write-Verbose 
 
         If ($returnedStorageContainer) {
-            $labStorageContainer = $returnedStorageContainer
-        }
-        Else {
-            # Create a blob container for lab files
-            $labStorageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
-            Write-Verbose "New                  AzureStorageContainer Returns $storageContainer"
-        }
-        
-        # Upload the blobs
-        $labFilePath = "$($LabConfigData.LabFilesPath)\$LabType"
-        Write-Verbose "Labfilepath $labFilePath"
+            Write-Warning "A storage container for labfiles already exists. Continuing will overwrite any old file data. Continue?"
+            $confirm = Read-Host "Press 'y' then enter to continue"
 
-        # Check the correct files are in $labFilePath
-        Test-Path -path  $labFilePath\*.json, $labFilePath\*.ps1, $labFilePath\*.psd1 | ForEach-Object {
-            If (!$_) {
+            if ($confirm -ne "y") {
+                Throw "Lab creation terminated by user."
+            }
+
+            Else {
+                $labStorageContainer = $returnedStorageContainer
+            }
+
+        }
+
+        Else {
+            $labStorageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
+            "New                  AzureStorageContainer Returns $storageContainer" | Write-Verbose
+        }
+
+        # Upload the blobs
+        $labFilePath = "$($LabConfigData.LabFilesPath)\$LabType\Config"
+        Write-Verbose "Labfilepath $labFilePath"
+        $filesExist = Test-Path -path  $labFilePath\*.json, $labFilePath\*.zip
+        
+        ForEach ($exist in $filesExist) {
+
+            If (!$exist) {
                 Throw "Required files not present in '$labFilePath'."
             }
-        }
 
+        }
 
         $uploadedBlobs = Get-ChildItem -Path $labFilePath | Set-AzureStorageBlobContent -Container $labStorageContainer.Name -Context $StorageContext
         Write-Verbose "Set-AzureStorageBlobContent returned $uploadedBlobs"
-        
-        Write-Verbose "-[Exiting] _UploadLabFiles returning $uploadedBlobs"
-        $uploadedBlobs
 
-        #TODO: Grab the URL and SAS Token for the uploaded DSC config
+        # Grab a Uri and SAS key for each uploaded file
+        $blobInfo = New-Object System.Collections.ArrayList
+
+        ForEach ($blob in $uploadedBlobs) {
+            $uri = $blob.ICloudBlob.uri 
+            $sasKey = New-AzureStorageBlobSASToken -Container labfiles -Blob $blob.Name -Permission r -Context $StorageContext
+            $blobInfo.Add([PSCustomObject]@{Name = $blob.Name ;uri = $uri; SasKey = $sasKey}) | Out-Null
+        }
+
+        Write-Verbose "-[Exiting] _UploadLabFiles returning $blobInfo"
+        $blobInfo
+
     }
 }

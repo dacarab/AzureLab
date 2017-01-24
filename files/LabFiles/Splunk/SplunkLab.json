@@ -5,11 +5,11 @@
     "DomainController_DSCFunction": {
       "type": "string"
     },
-    "ModulesURL":{
+    "ModulesUrl": {
       "type": "string"
     },
-    "SasToken" :{
-      "type": "securestring"
+    "sasToken": {
+      "type": "string"
     },
     "LabName": {
       "type": "string"
@@ -234,7 +234,7 @@
         "location": "uksouth",
         "apiVersion": "2015-06-15",
         "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachines_win_web_0_name'))]"
+          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmWinName'))]"
         ],
         "tags": {
           "displayName": "Windows01_DSC"
@@ -245,10 +245,13 @@
           "typeHandlerVersion": "2.15",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "modulesUrl": "[parameters('ModulesURL')]",
-            "configurationFunction": "[parameters('windows01_dscConfigurationFunction')]",
-            "sasToken": "[parameters('SasToken')]",
-            "properties": "[parameters('LabName')]"
+            "modulesUrl": "[parameters('ModulesUrl')]",
+            "configurationFunction": "[parameters('DomainController_DSCFunction')]",
+            "sasToken": "[parameters('sasToken')]",
+            "properties": {
+              "LabName": "[parameters('LabName')]",
+              "LabPassword": "[parameters('LabPassword')]"
+              }
           },
           "protectedSettings": {
             "LabPassword": "[parameters('LabPassword')]"

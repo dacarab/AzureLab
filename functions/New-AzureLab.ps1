@@ -35,9 +35,19 @@
     $newRgState = _NewResourceGroup -LabName $LabName -AzureLocation $AzureLocation -LabType $LabType
     $storageAccount = _NewStorageAccount -LabName $LabName -AzureLocation $AzureLocation
     $storageAccountContext = _GetStorageAccountContext -LabName $LabName -StorageAccount $StorageAccount
-    $uploadLabFilesState = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
+    $blobInfo = _UploadLabFiles -LabType $LabType -StorageContext $storageAccountContext
     $realIP = _GetRealIP
-    $templateParamHash = _GenerateTemplateParamHash -LabName $LabName -LabType $LabType -LabPassword $LabPassword -RealIP $realIP
+
+    $_generateTemplateParamHashParams = @{
+                                            LabName = $LabName 
+                                            LabType = $LabType 
+                                            LabPassword = $LabPassword 
+                                            RealIP = $realIP
+                                            BlobInfo = $blobInfo
+                                          }
+
+    $templateParamHash = _GenerateTemplateParamHash @_generateTemplateParamHashParams
+
     $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"

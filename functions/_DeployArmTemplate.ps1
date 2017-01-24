@@ -16,9 +16,10 @@
   }
 
   End {
-    $dataToReturn = New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $TemplateParamHash -TemplateFile $Labs.$LabType.TemplatePath
+    Write-Verbose "Lab template path: $($LabConfigData.$LabType.TemplatePath) "
+    $deploymentState = New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $TemplateParamHash -TemplateFile $LabConfigData.$LabType.TemplatePath
 
-    Write-Verbose "-EXITING         _DeployArmTemplate           returning $([PSCustomObject]$dataToReturn)"
-    $dataToReturn
+    Write-Verbose "-EXITING         _DeployArmTemplate           returning $dataToReturn"
+    $deploymentState
   }
 }

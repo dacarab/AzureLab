@@ -14,8 +14,12 @@
         $RealIp,
 
         [Parameter(Mandatory)]
-        [securestring]
-        $LabPassword
+        [Securestring]
+        $LabPassword,
+
+        [Parameter(Mandatory)]
+        [Object[]]
+        $BlobInfo
     )
     
     begin {
@@ -24,20 +28,31 @@
             $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
         }
 
-        "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator())" | Write-Verbose 
+        "+[Entering]  _GenerateTemplateParamHash  $($PSBoundParameters.GetEnumerator()) $($BlobInfo.Count)" | Write-Verbose 
     }
 
     end {
-        $dataToReturn = @{
-            ManagementIP = $RealIp
-            LabPassword = $LabPassword
-            ModulesURL = $ModuleURL
-            DomainController_DSCFunction = $DomainController_DSCFunction
-            SasToken = $SasToken
-            LabName = $LabName
+        switch ($LabType) {
+            Splunk {
+                $sasKeyPlainText = "'" +$BlobInfo.where({$_.Name -eq "dsc.zip"}).SasKey + "'"
+                $sasKeySecureString = ConvertTo-SecureString -String $sasKeyPlainText -AsPlainText -Force
+
+                $paramHash = @{
+                    ManagementIP = $RealIp
+                    LabPassword = $LabPassword
+                    ModulesUrl = $BlobInfo.where({$_.Name -eq "dsc.zip"}).uri
+                    DomainController_DSCFunction = $LabConfigData.$LabType.DomainController_DSCFunction
+                    SasToken = $sasKeyPlainText
+                    LabName = $LabName
+                }
+
+            }
+            Default { 
+                Throw "Problem generating parameters for ARM template - can't determine lab type."
+            }
         }
 
-        "-[Exiting] _GenerateTemplateParamHash returning $dataToReturn" | Write-Verbose
-        $dataToReturn
+        "-[Exiting] _GenerateTemplateParamHash returning $([PSCustomObject]$paramHash)" | Write-Verbose
+        $paramHash
     }
 }

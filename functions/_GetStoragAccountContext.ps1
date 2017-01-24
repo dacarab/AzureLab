@@ -17,10 +17,10 @@
     $storageAccountkeys = Get-AzureRmStorageAccountKey -name $StorageAccount.StorageAccountName -ResourceGroupName $LabName
     Write-Verbose "[Returned:] Get                   AzureRmStorageAccountKey                    $storageAccountkeys"
 
-    $storageAccountContext = New-AzureStorageContext  -StorageAccountName $StorageAccount.StorageAccountName -StorageAccountKey $storageAccountKeys[0].Value
-    Write-Verbose "[Returned:] New                   AzureStorageContext                          $storageAccountContext"
+    $storageContext = New-AzureStorageContext  -StorageAccountName $StorageAccount.StorageAccountName -StorageAccountKey $storageAccountKeys[0].Value
+    Write-Verbose "[Returned:] New                   AzureStorageContext                          $storageContext"
 
-    Write-Verbose "-[Exiting:]  $storageAccountContext"
-    $storageAccountContext 
+    Write-Verbose "-[Exiting:] _GetStorageAccountContext returning  $storageContext"
+    $storageContext 
   }
 }

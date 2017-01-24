@@ -2,11 +2,13 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 $targetFunction = $sut -replace '\.ps1', ''
+
+$LabFilesPath = "$here\..\files\LabFiles"
 $LabConfigData = @{
-    LabFilesPath = "$PSScriptRoot\..\files\LabFiles"
-    SplunkLab = @{
-        LabType = "Splunk"
+    LabFilesPath = $LabFilesPath
+    Splunk = @{
         TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
+        DomainController_DSCFunction = "SplunkLab.ps1//DomainController"
     }
 }
 
@@ -18,9 +20,12 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     $storageContext = New-MockObject  Microsoft.WindowsAzure.Commands.Common.Storage.AzureStorageContext
 
     Mock New-AzureStorageContainer {@{Name = "test"}}
-    Mock Set-AzureStorageBlobContent {@(,"File1")}
+    Mock Set-AzureStorageBlobContent {@{Name = "someBlob" ;ICloudBlob = @{uri = "www"}}}
     Mock Get-ChildItem {[PSCustomObject]@{FullName = "File1"}}
     Mock Get-AzureStorageContainer {}
+    Mock Read-Host {"y"}
+    Mock New-AzureStorageBlobSASToken {"someSasToken"}
+    Mock Write-Warning {}
 
     It "[Execution: ] Should throw if Lab files do not exist" {
         {_UploadLabFiles -LabType "wibbler" -StorageContext $storageContext } | should throw
@@ -42,7 +47,8 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     }
 
     It "[Output:    ] Should return the expected output" {
-        _UploadLabFiles -LabType $labType -StorageContext $storageContext | Should be "File1"
+        $returned = _UploadLabFiles -LabType $labType -StorageContext $storageContext 
+        $returned.where({$_.Name -eq "someBlob"}).name | Should be "someBlob"
     }
 
 }

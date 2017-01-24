@@ -1,11 +1,11 @@
 ﻿# Dotsource all the script files from functions folder that are not pester tests
 get-childitem $PSScriptRoot\functions -Exclude "*tests*" | ForEach-Object {. $_.FullName}
+$LabFilesPath = "$PSScriptRoot\files\LabFiles"
 
 # Module Variables
 $LabConfigData = @{
-    LabFilesPath = "$PSScriptRoot\files\LabFiles"
-    SplunkLab = @{
-        LabType = "Splunk"
+    LabFilesPath = $LabFilesPath
+    Splunk = @{
         TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
         DomainController_DSCFunction = "SplunkLab.ps1//DomainController"
     }

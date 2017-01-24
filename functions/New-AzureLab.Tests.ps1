@@ -94,7 +94,7 @@ end {
     Mock _NewResourceGroup {} -AzureLab
     Mock _NewStorageAccount {} -AzureLab
     Mock _GetStorageAccountContext {} -AzureLab
-    Mock _UploadLabFiles {} -AzureLab
+    Mock _UploadLabFiles {@{File1 = @{uri = "www"; SasKey = "SomeSasKey"}}} -AzureLab
     Mock _GenerateTemplateParamHash {} -AzureLab
     Mock _DeployArmTemplate {} -AzureLab
     Mock _EnsureConnected {} -AzureLab
