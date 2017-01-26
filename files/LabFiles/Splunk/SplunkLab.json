@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "StorageAccountName": {
+      "type": "string"
+    },
     "DomainController_DSCFunction": {
       "type": "string"
     },
@@ -80,28 +83,25 @@
     }
   },
   "variables": {
-    "vnLabPrefix": "10.255.255.0/24",
-    "vnLabSubnetName": "Subnet1",
-    "vnLabSubnetPrefix": "10.255.255.240/28",
-    "saLabName": "[concat('salab', uniqueString(resourceGroup().id))]",
-    "piWinName": "piWin",
-    "vmWinImagePublisher": "MicrosoftWindowsServer",
-    "vmWinImageOffer": "WindowsServer",
-    "vmWinOSDiskName": "vmWinOSDisk",
-    "vmWinVmSize": "Standard_A1",
-    "vmWinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
-    "vmWinSubnetRef": "[concat(variables('vmWinVnetID'), '/subnets/', variables('vnLabSubnetName'))]",
-    "vmWinStorageAccountContainerName": "vhds",
-    "vmWinNicName": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
-    "vmLinImagePublisher": "Canonical",
-    "vmLinImageOffer": "UbuntuServer",
-    "vmLinOSDiskName": "vmLinOSDisk",
-    "vmLinVmSize": "Standard_A0",
-    "vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
-    "vmLinSubnetRef": "[concat(variables('vmLinVnetID'), '/subnets/', variables('vnLabSubnetName'))]",
-    "vmLinStorageAccountContainerName": "vhds",
-    "vmLinNicName": "[concat(parameters('vmLinName'), 'NetworkInterface')]",
-    "piLinName": "piLin",
+    "LabAddressSpace": "10.255.255.0/24",
+    "LabSubnetName": "[concat(Parameters('LabName'), '_Subnet')]",
+    "LabSubnet": "10.255.255.240/28",
+    "StorageAccount": "[concat('salab', uniqueString(resourceGroup().id))]",
+    //"piWinName": "piWin",
+    //"vmWinImagePublisher": "MicrosoftWindowsServer",
+    //"vmWinImageOffer": "WindowsServer",
+    //"vmWinOSDiskName": "vmWinOSDisk",
+    //"vmWinVmSize": "Standard_A1",
+    "LabVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
+    "LabSubnetID": "[concat(variables('LabVnetID'), '/subnets/', variables('LabSubnetName'))]",
+    //"vmWinStorageAccountContainerName": "vhds",
+    "DomainControllerNic": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
+    //"vmLinOSDiskName": "vmLinOSDisk",
+    //"vmLinVmSize": "Standard_A0",
+    //"vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
+    //"vmLinSubnetRef": "[concat(variables('vmLinVnetID'), '/subnets/', variables('LabSubnetName'))]",
+    "SplunkNic": "[concat(parameters('vmLinName'), 'NetworkInterface')]",
+    "SplunkPIP": "piLin",
     "nsLab": "sgLab",
     "scriptUrl": "https://deploysa.blob.core.windows.net/scripts/splunk_setup.sh",
     "commandToExecute": "sh splunk_setup.sh",
@@ -121,13 +121,13 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('vnLabPrefix')]"
+            "[variables('LabAddressSpace')]"
           ]
         },
         "subnets": [{
-          "name": "[variables('vnLabSubnetName')]",
+          "name": "[variables('LabSubnetName')]",
           "properties": {
-            "addressPrefix": "[variables('vnLabSubnetPrefix')]",
+            "addressPrefix": "[variables('LabSubnet')]",
             "networkSecurityGroup": {
               "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsLab'))]"
             }
@@ -149,7 +149,7 @@
       }
     },
     {
-      "name": "[variables('piWinName')]",
+      "name": "DomainController_PublicIP",
       "type": "Microsoft.Network/publicIPAddresses",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -165,13 +165,13 @@
       }
     },
     {
-      "name": "[variables('vmWinNicName')]",
+      "name": "[variables('DomainControllerNic')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
-        "[concat('Microsoft.Network/publicIPAddresses/',variables('piWinName'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/','DomainController_PublicIP')]"
       ],
       "tags": {
         "displayName": "Virtual Nic for Windows VM"
@@ -182,10 +182,10 @@
           "properties": {
             "privateIPAllocationMethod": "Dynamic",
             "subnet": {
-              "id": "[variables('vmWinSubnetRef')]"
+              "id": "[variables('LabSubnetID')]"
             },
             "publicIPAddress": {
-              "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('piWinName'))]"
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'DomainControllerPublicIP')]"
             }
           }
         }]
@@ -198,14 +198,14 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('vmWinNicName'))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('DomainControllerNic'))]"
       ],
       "tags": {
         "displayName": "Windows Virtual Machine"
       },
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('vmWinVmSize')]"
+          "vmSize": "Standard_A1"
         },
         "osProfile": {
           "computerName": "[parameters('vmWinName')]",
@@ -214,23 +214,23 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('vmWinImagePublisher')]",
-            "offer": "[variables('vmWinImageOffer')]",
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
             "sku": "[parameters('vmWinWindowsOSVersion')]",
             "version": "latest"
           },
           "osDisk": {
             "name": "vmWinOSDisk",
             "vhd": {
-              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmWinStorageAccountContainerName'), '/', variables('vmWinOSDiskName'), '.vhd')]"
+              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/DomainControllerOS.vhd')]"
             },
-            "caching": "ReadWrite",
+            "caching": "Read",
             "createOption": "FromImage"
           }
         },
         "networkProfile": {
           "networkInterfaces": [{
-            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmWinNicName'))]"
+            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('DomainControllerNic'))]"
           }]
         }
       },
@@ -276,13 +276,13 @@
       }]
     },
     {
-      "name": "[variables('vmLinNicName')]",
+      "name": "[variables('SplunkNic')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('piLinName'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('SplunkPIP'))]"
       ],
       "tags": {
         "displayName": "Virtual Nic for Linux VM"
@@ -293,20 +293,20 @@
           "properties": {
             "privateIPAllocationMethod": "Dynamic",
             "subnet": {
-              "id": "[variables('vmLinSubnetRef')]",
+              "id": "[variables('LabSubnetID')]",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'piLinName')]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'SplunkPIP')]"
               }
             },
             "publicIPAddress": {
-              "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('piLinName'))]"
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('SplunkPIP'))]"
             }
           }
         }]
       }
     },
     {
-      "name": "[variables('piLinName')]",
+      "name": "[variables('SplunkPIP')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -484,7 +484,7 @@
             "name": "osdisk",
             "createOption": "FromImage",
             "vhd": {
-              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'), '.vhd')]"
+              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkOS.vhd')]"
             },
             "caching": "ReadWrite"
           },
@@ -493,7 +493,7 @@
               "name": "datadisk1",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk1.vhd')]"
+                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk1.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -503,7 +503,7 @@
               "name": "datadisk2",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk2.vhd')]"
+                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk2.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -513,7 +513,7 @@
               "name": "datadisk3",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk3.vhd')]"
+                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk3.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -523,7 +523,7 @@
               "name": "datadisk4",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/', variables('vmLinStorageAccountContainerName'), '/', variables('vmLinOSDiskName'),'-datadisk4.vhd')]"
+                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk4.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -541,14 +541,14 @@
         },
         "networkProfile": {
           "networkInterfaces": [{
-            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
+            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('SplunkNic'))]"
           }]
         }
       },
       "resources": [],
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('saLabName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmLinNicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('SplunkNic'))]"
       ],
       "tags": {
         "displayName": "Splunk Virtual Machine"
@@ -577,5 +577,7 @@
       ]
     }
   ],
-  "outputs": {}
+  "outputs": {
+
+  }
 }

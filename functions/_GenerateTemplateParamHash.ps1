@@ -46,6 +46,7 @@
                     LabName = $LabName
                     SplunkSetupScript = "splunk_setup"
                     SplunkSetupScriptURL = $BlobInfo.where({$_.Name -eq "splunk_setup.sh"}).uri
+                    StorageAccountName = ""
                     }
                 }
 
