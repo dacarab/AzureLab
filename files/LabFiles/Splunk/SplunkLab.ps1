@@ -1,7 +1,7 @@
 Configuration DomainController {
     param (
         [string]$LabName,
-        [securestring]$LabPassword
+        [pscredential]$LabPassword
     )
     Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
@@ -21,7 +21,7 @@ Configuration DomainController {
         }
 
         xADDomain LabName.Local {
-            DomainAdministratorCredential = $LabPassword
+            DomainAdministratorCredential = [PSCredential]$LabPassword
             DomainName = "$LabName.Local"
             SafemodeAdministratorPassword = $LabPassword
             DependsOn = "[WindowsFeature]AD-Domain-Services","[WindowsFeature]DNS"

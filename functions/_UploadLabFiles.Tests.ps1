@@ -19,7 +19,7 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     $storageAccount = @{StorageAccountName = "teststorage"}
     $storageContext = New-MockObject  Microsoft.WindowsAzure.Commands.Common.Storage.AzureStorageContext
 
-    Mock New-AzureStorageContainer {@{Name = "test"}}
+    Mock New-AzureStorageContainer {@(,@{Name = "test";uri="someuri";SasToken = "someSasToken"})}
     Mock Set-AzureStorageBlobContent {@{Name = "someBlob" ;ICloudBlob = @{uri = "www"}}}
     Mock Get-ChildItem {[PSCustomObject]@{FullName = "File1"}}
     Mock Get-AzureStorageContainer {}

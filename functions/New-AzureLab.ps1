@@ -47,7 +47,6 @@
                                           }
 
     $templateParamHash = _GenerateTemplateParamHash @_generateTemplateParamHashParams
-
     $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash -LabPassword $LabPassword
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"

@@ -54,6 +54,8 @@ A bare minimum of functionality required is one line provisioning / de-provision
 ## Desired Enhancements
 
 1. Add cmdlet to list all deployed labs
+1. Add auto shutdown feature to vms
+1. Add json template customisation feature
 
 ## Functions
 

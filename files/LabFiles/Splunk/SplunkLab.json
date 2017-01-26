@@ -82,7 +82,7 @@
     "vmWinImagePublisher": "MicrosoftWindowsServer",
     "vmWinImageOffer": "WindowsServer",
     "vmWinOSDiskName": "vmWinOSDisk",
-    "vmWinVmSize": "Standard_A0",
+    "vmWinVmSize": "Standard_A1",
     "vmWinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
     "vmWinSubnetRef": "[concat(variables('vmWinVnetID'), '/subnets/', variables('vnLabSubnetName'))]",
     "vmWinStorageAccountContainerName": "vhds",
@@ -231,7 +231,7 @@
       "resources": [{
         "name": "windows01_dsc",
         "type": "extensions",
-        "location": "uksouth",
+        "location": "[resourceGroup().location]",
         "apiVersion": "2015-06-15",
         "dependsOn": [
           "[concat('Microsoft.Compute/virtualMachines/', parameters('vmWinName'))]"
@@ -242,19 +242,25 @@
         "properties": {
           "publisher": "Microsoft.Powershell",
           "type": "DSC",
-          "typeHandlerVersion": "2.15",
+          "typeHandlerVersion": "2.20",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "modulesUrl": "[parameters('ModulesUrl')]",
-            "configurationFunction": "[parameters('DomainController_DSCFunction')]",
-            "sasToken": "[parameters('sasToken')]",
-            "properties": {
-              "LabName": "[parameters('LabName')]",
-              "LabPassword": "[parameters('LabPassword')]"
-              }
+            "configuration": {
+              "url": "[parameters('ModulesUrl')]",
+              "script": "splunklab.ps1",
+              "function": "[parameters('DomainController_DSCFunction')]"
+              //"configurationFunction": "[parameters('DomainController_DSCFunction')]",
+              //"sasToken": "[parameters('sasToken')]"
+            },
+            "configurationArguments": {
+              "LabName": "[parameters('LabName')]"
+            }
           },
           "protectedSettings": {
-            "LabPassword": "[parameters('LabPassword')]"
+            "configurationArguments": {
+              "configurationUrlSasToken": "[parameters('sasToken')]",
+              "LabPassword": "[parameters('LabPassword')]"
+            }
           }
         }
       }]

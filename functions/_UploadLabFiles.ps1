@@ -34,14 +34,14 @@
         }
 
         Else {
-            $labStorageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext
+            $labStorageContainer = New-AzureStorageContainer -Name "labfiles" -Context $StorageContext -Permission Container
             "New                  AzureStorageContainer Returns $storageContainer" | Write-Verbose
         }
 
         # Upload the blobs
         $labFilePath = "$($LabConfigData.LabFilesPath)\$LabType\Config"
         Write-Verbose "Labfilepath $labFilePath"
-        $filesExist = Test-Path -path  $labFilePath\*.json, $labFilePath\*.zip
+        $filesExist = Test-Path -path   $labFilePath\*.zip
         
         ForEach ($exist in $filesExist) {
 
@@ -64,7 +64,7 @@
         }
 
         Write-Verbose "-[Exiting] _UploadLabFiles returning $blobInfo"
-        $blobInfo
+        Return ,$blobInfo
 
     }
 }

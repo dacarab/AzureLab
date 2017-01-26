@@ -42,7 +42,7 @@
                     LabPassword = $LabPassword
                     ModulesUrl = $BlobInfo.where({$_.Name -eq "dsc.zip"}).uri
                     DomainController_DSCFunction = $LabConfigData.$LabType.DomainController_DSCFunction
-                    SasToken = $sasKeyPlainText
+                    SasToken = ""# $sasKeyPlainText
                     LabName = $LabName
                 }
 
