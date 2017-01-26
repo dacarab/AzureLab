@@ -22,7 +22,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 
 ## Work List
 
-1. Add DSC functionality
+1. ~~Add DSC functionality~~
 1. Add report generated at end of deployment
 1. Finalise tests
 1. Update readme
@@ -53,6 +53,8 @@ A bare minimum of functionality required is one line provisioning / de-provision
 
 ## Desired Enhancements
 
+1. Provide easy way of customising machine count
+1. Add Generic lab config
 1. Add cmdlet to list all deployed labs
 1. Add auto shutdown feature to vms
 1. Add json template customisation feature
