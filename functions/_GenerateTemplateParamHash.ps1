@@ -44,6 +44,9 @@
                     DomainController_DSCFunction = $LabConfigData.$LabType.DomainController_DSCFunction
                     SasToken = ""# $sasKeyPlainText
                     LabName = $LabName
+                    SplunkSetupScript = "splunk_setup"
+                    SplunkSetupScriptURL = $BlobInfo.where({$_.Name -eq "splunk_setup.sh"}).uri
+                    }
                 }
 
             }

@@ -1,14 +1,21 @@
 Configuration DomainController {
     param (
         [string]$LabName,
-        [pscredential]$LabPassword
+        [pscredential]$AdminCred
     )
     Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -Modulename xDnsServer
     
-    node LocalHost {    
+    node LocalHost {
+        # Enable RDP connection without NLA
+        Registry DisableNLA {
+            Ensure = "Present"
+            Key = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"
+            ValueName = "SecurityData"
+            ValueData = "0"
+        }
 
         WindowsFeature DNS {
             Name = "DNS"

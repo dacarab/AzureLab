@@ -14,6 +14,12 @@
     "LabName": {
       "type": "string"
     },
+    "SplunkSetupScript": {
+      "type": "string"
+    },
+    "SplunkSetupScriptUrl": {
+      "type": "string"
+    },
     "saLabType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
@@ -99,7 +105,7 @@
     "nsLab": "sgLab",
     "scriptUrl": "https://deploysa.blob.core.windows.net/scripts/splunk_setup.sh",
     "commandToExecute": "sh splunk_setup.sh",
-    "extensions_node_setup_name": "[concat(parameters('vmLinName'), '/node-setup')]"
+    "extensions_node_setup_name": "[concat(parameters('vmLinName'), '/', parameters('SplunkSetupScript'))]"
   },
   "resources": [{
       "name": "vnLab",
@@ -253,13 +259,17 @@
               //"sasToken": "[parameters('sasToken')]"
             },
             "configurationArguments": {
-              "LabName": "[parameters('LabName')]"
+              "LabName": "[parameters('LabName')]",
+              "AdminCred": {
+                "UserName": "Administrator",
+                "Password": "PrivateSettingsRef:AdminPassword"
+              }
             }
           },
           "protectedSettings": {
+            "AdminPassword": "[parameters('LabPassword')]",
             "configurationArguments": {
-              "configurationUrlSasToken": "[parameters('sasToken')]",
-              "LabPassword": "[parameters('LabPassword')]"
+              //"configurationUrlSasToken": "[parameters('sasToken')]"
             }
           }
         }
