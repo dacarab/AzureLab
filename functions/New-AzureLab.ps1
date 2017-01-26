@@ -44,10 +44,11 @@
                                             LabPassword = $LabPassword 
                                             RealIP = $realIP
                                             BlobInfo = $blobInfo
+                                            StorageAccount = $storageAccount.StorageAccountName
                                           }
 
     $templateParamHash = _GenerateTemplateParamHash @_generateTemplateParamHashParams
-    $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash -LabPassword $LabPassword
+    $deployState = _DeployArmTemplate -LabName $LabName -LabType $LabType -TemplateParamHash $templateParamHash
 
     Write-Verbose "-EXITING         New-AzureLab          Returning $deployState"
     Return $deployState

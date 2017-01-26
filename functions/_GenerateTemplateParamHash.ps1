@@ -19,7 +19,11 @@
 
         [Parameter(Mandatory)]
         [Object[]]
-        $BlobInfo
+        $BlobInfo,
+
+        [Parameter(Mandatory)]
+        [String]
+        $StorageAccount
     )
     
     begin {
@@ -34,28 +38,30 @@
     end {
         switch ($LabType) {
             Splunk {
-                $sasKeyPlainText = "'" +$BlobInfo.where({$_.Name -eq "dsc.zip"}).SasKey + "'"
+                $sasKeyPlainText = "'" + $BlobInfo.where({$_.Name -eq "dsc.zip"}).SasKey + "'"
                 $sasKeySecureString = ConvertTo-SecureString -String $sasKeyPlainText -AsPlainText -Force
 
                 $paramHash = @{
+                    LabAdmin = $LabConfigData.$LabType.LabAdmin
                     ManagementIP = $RealIp
                     LabPassword = $LabPassword
-                    ModulesUrl = $BlobInfo.where({$_.Name -eq "dsc.zip"}).uri
-                    DomainController_DSCFunction = $LabConfigData.$LabType.DomainController_DSCFunction
-                    SasToken = ""# $sasKeyPlainText
+                    DomainControllerDscUri = $BlobInfo.where({$_.Name -eq "dsc.zip"}).uri
+                    #DomainControllerDscSasToken = ""# $sasKeyPlainText
+                    DomainControllerDscScript = $LabConfigData.$LabType.DomainControllerDscScript
+                    DomainControllerDscFunction = $LabConfigData.$LabType.DomainControllerDscFunction
                     LabName = $LabName
                     SplunkSetupScript = "splunk_setup"
                     SplunkSetupScriptURL = $BlobInfo.where({$_.Name -eq "splunk_setup.sh"}).uri
-                    StorageAccountName = ""
-                    }
+                    StorageAccount = $StorageAccount
                 }
 
             }
+
             Default { 
                 Throw "Problem generating parameters for ARM template - can't determine lab type."
             }
-        }
 
+        }
         "-[Exiting] _GenerateTemplateParamHash returning $([PSCustomObject]$paramHash)" | Write-Verbose
         $paramHash
     }

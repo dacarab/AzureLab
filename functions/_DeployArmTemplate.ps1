@@ -3,8 +3,7 @@
   param(
     $LabName,
     $LabType,
-    $TemplateParamHash,
-    [SecureString] $LabPassword
+    $TemplateParamHash
   )
   Begin {
     # Temporary fix for VerbosePreference from calling scope not being honoured 

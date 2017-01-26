@@ -2,18 +2,21 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "StorageAccountName": {
+    "StorageAccount": {
       "type": "string"
     },
-    "DomainController_DSCFunction": {
+    "DomainControllerDscScript": {
       "type": "string"
     },
-    "ModulesUrl": {
+    "DomainControllerDscFunction": {
       "type": "string"
     },
-    "sasToken": {
+    "DomainControllerDscUri": {
       "type": "string"
     },
+/*    "DomainContollerDscSasToken": {
+      "type": "string"
+    },*/
     "LabName": {
       "type": "string"
     },
@@ -23,33 +26,7 @@
     "SplunkSetupScriptUrl": {
       "type": "string"
     },
-    "saLabType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_ZRS",
-        "Standard_GRS",
-        "Standard_RAGRS",
-        "Premium_LRS"
-      ]
-    },
-    "niWinName": {
-      "type": "string",
-      "defaultValue": "niWindows01",
-      "minLength": 1
-    },
-    "piWinDnsName": {
-      "type": "string",
-      "defaultValue": "dc0432win",
-      "minLength": 1
-    },
-    "vmWinName": {
-      "type": "string",
-      "defaultValue": "windows01",
-      "minLength": 1
-    },
-    "admin": {
+    "LabAdmin": {
       "type": "string",
       "defaultValue": "crapmin",
       "minLength": 1
@@ -59,53 +36,22 @@
     },
     "ManagementIP": {
       "type": "string",
-      "defaultValue": "82.26.67.107/32"
-    },
-    "vmWinWindowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2012-R2-Datacenter",
-      "allowedValues": [
-        "2008-R2-SP1",
-        "2012-Datacenter",
-        "2012-R2-Datacenter",
-        "Windows-Server-Technical-Preview"
-      ]
-    },
-    "vmLinName": {
-      "type": "string",
-      "defaultValue": "splunk01",
-      "minLength": 1
-    },
-    "piLinDnsName": {
-      "type": "string",
-      "defaultValue": "ab0432lin",
-      "minLength": 1
+      "defaultValue": ""
     }
   },
   "variables": {
     "LabAddressSpace": "10.255.255.0/24",
     "LabSubnetName": "[concat(Parameters('LabName'), '_Subnet')]",
     "LabSubnet": "10.255.255.240/28",
-    "StorageAccount": "[concat('salab', uniqueString(resourceGroup().id))]",
-    //"piWinName": "piWin",
-    //"vmWinImagePublisher": "MicrosoftWindowsServer",
-    //"vmWinImageOffer": "WindowsServer",
-    //"vmWinOSDiskName": "vmWinOSDisk",
-    //"vmWinVmSize": "Standard_A1",
     "LabVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
     "LabSubnetID": "[concat(variables('LabVnetID'), '/subnets/', variables('LabSubnetName'))]",
-    //"vmWinStorageAccountContainerName": "vhds",
-    "DomainControllerNic": "[concat(parameters('vmWinName'), 'NetworkInterface')]",
-    //"vmLinOSDiskName": "vmLinOSDisk",
-    //"vmLinVmSize": "Standard_A0",
-    //"vmLinVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'vnLab')]",
-    //"vmLinSubnetRef": "[concat(variables('vmLinVnetID'), '/subnets/', variables('LabSubnetName'))]",
-    "SplunkNic": "[concat(parameters('vmLinName'), 'NetworkInterface')]",
-    "SplunkPIP": "piLin",
-    "nsLab": "sgLab",
-    "scriptUrl": "https://deploysa.blob.core.windows.net/scripts/splunk_setup.sh",
-    "commandToExecute": "sh splunk_setup.sh",
-    "extensions_node_setup_name": "[concat(parameters('vmLinName'), '/', parameters('SplunkSetupScript'))]"
+    "DomainControllerName": "dc01",
+    "DomainControllerNic": "DomainControlerNic",
+    "SplunkName": "splunk01",
+    "SplunkNic": "SplunkNic",
+    "SplunkPIP": "SplunkPIP",
+    "LabSecurityGroup": "LabSecurityGroup",
+    "SplunkSetupCmd": "sh splunk_setup.sh"
   },
   "resources": [{
       "name": "vnLab",
@@ -113,7 +59,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/',variables('nsLab'))]"
+        "[concat('Microsoft.Network/networkSecurityGroups/',variables('LabSecurityGroup'))]"
       ],
       "tags": {
         "displayName": "Virtual Network for Chef Lab"
@@ -129,23 +75,10 @@
           "properties": {
             "addressPrefix": "[variables('LabSubnet')]",
             "networkSecurityGroup": {
-              "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsLab'))]"
+              "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('LabSecurityGroup'))]"
             }
           }
         }]
-      }
-    },
-    {
-      "name": "[variables('saLabName')]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "Storage Account for Lab VMs"
-      },
-      "properties": {
-        "accountType": "[parameters('saLabType')]"
       }
     },
     {
@@ -160,7 +93,7 @@
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[parameters('piWinDnsName')]"
+          "domainNameLabel": "[concat(variables('DomainControllerName'), uniqueString(resourceGroup().id))]"
         }
       }
     },
@@ -185,19 +118,18 @@
               "id": "[variables('LabSubnetID')]"
             },
             "publicIPAddress": {
-              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'DomainControllerPublicIP')]"
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'DomainController_PublicIP')]"
             }
           }
         }]
       }
     },
     {
-      "name": "[parameters('vmWinName')]",
+      "name": "[variables('DomainControllerName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', variables('saLabName'))]",
         "[concat('Microsoft.Network/networkInterfaces/', variables('DomainControllerNic'))]"
       ],
       "tags": {
@@ -208,25 +140,37 @@
           "vmSize": "Standard_A1"
         },
         "osProfile": {
-          "computerName": "[parameters('vmWinName')]",
-          "adminUsername": "[parameters('admin')]",
+          "computerName": "[variables('DomainControllerName')]",
+          "adminUsername": "[parameters('LabAdmin')]",
           "adminPassword": "[parameters('labPassword')]"
         },
         "storageProfile": {
           "imageReference": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "sku": "[parameters('vmWinWindowsOSVersion')]",
+            "sku": "2016-Datacenter",
             "version": "latest"
           },
           "osDisk": {
             "name": "vmWinOSDisk",
             "vhd": {
-              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/DomainControllerOS.vhd')]"
+              "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/DomainControllerOS.vhd')]"
             },
-            "caching": "Read",
+            "caching": "ReadWrite",
             "createOption": "FromImage"
-          }
+          },
+          "dataDisks": [
+            {
+              "lun": 0,
+              "name": "ActiveDirctoryDisk",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/ActiveDirectoryDisk.vhd')]"
+              },
+              "caching": "ReadOnly",
+              "diskSizeGB": 1023
+            }
+          ]
         },
         "networkProfile": {
           "networkInterfaces": [{
@@ -240,7 +184,7 @@
         "location": "[resourceGroup().location]",
         "apiVersion": "2015-06-15",
         "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmWinName'))]"
+          "[concat('Microsoft.Compute/virtualMachines/', variables('DomainControllerName'))]"
         ],
         "tags": {
           "displayName": "Windows01_DSC"
@@ -252,16 +196,15 @@
           "autoUpgradeMinorVersion": true,
           "settings": {
             "configuration": {
-              "url": "[parameters('ModulesUrl')]",
-              "script": "splunklab.ps1",
-              "function": "[parameters('DomainController_DSCFunction')]"
-              //"configurationFunction": "[parameters('DomainController_DSCFunction')]",
-              //"sasToken": "[parameters('sasToken')]"
+              "url": "[parameters('DomainControllerDscUri')]",
+              "script": "[parameters('DomainControllerDscScript')]",
+              "function": "[parameters('DomainControllerDscFunction')]"
+              //"DomainContollerDscSasToken": "[parameters('DomainContollerDscSasToken')]"
             },
             "configurationArguments": {
               "LabName": "[parameters('LabName')]",
               "AdminCred": {
-                "UserName": "Administrator",
+                "UserName": "[parameters('LabAdmin')]",
                 "Password": "PrivateSettingsRef:AdminPassword"
               }
             }
@@ -269,7 +212,7 @@
           "protectedSettings": {
             "AdminPassword": "[parameters('LabPassword')]",
             "configurationArguments": {
-              //"configurationUrlSasToken": "[parameters('sasToken')]"
+              //"configurationUrlDomainContollerDscSasToken": "[parameters('DomainContollerDscSasToken')]"
             }
           }
         }
@@ -282,7 +225,7 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('SplunkPIP'))]"
+      "[concat('Microsoft.Network/publicIPAddresses/', variables('SplunkPIP'))]"
       ],
       "tags": {
         "displayName": "Virtual Nic for Linux VM"
@@ -296,11 +239,11 @@
               "id": "[variables('LabSubnetID')]",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'SplunkPIP')]"
-              }
+                }
             },
             "publicIPAddress": {
               "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('SplunkPIP'))]"
-            }
+                     }
           }
         }]
       }
@@ -317,14 +260,14 @@
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[parameters('piLinDnsName')]"
+          "domainNameLabel": "[concat(variables('SplunkName'), uniqueString(resourceGroup().id))]"
         }
       }
     },
     {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('nsLab')]",
+      "name": "[variables('LabSecurityGroup')]",
       "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "Network Security Group"
@@ -461,7 +404,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmLinName')]",
+      "name": "[variables('SplunkName')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "plan": {
@@ -484,7 +427,7 @@
             "name": "osdisk",
             "createOption": "FromImage",
             "vhd": {
-              "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkOS.vhd')]"
+              "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/SplunkOS.vhd')]"
             },
             "caching": "ReadWrite"
           },
@@ -493,7 +436,7 @@
               "name": "datadisk1",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk1.vhd')]"
+                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/SplunkDataDisk1.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -503,7 +446,7 @@
               "name": "datadisk2",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk2.vhd')]"
+                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/SplunkDataDisk2.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -513,7 +456,7 @@
               "name": "datadisk3",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk3.vhd')]"
+                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/SplunkDataDisk3.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -523,7 +466,7 @@
               "name": "datadisk4",
               "createOption": "Empty",
               "vhd": {
-                "uri": "[concat('http://', variables('saLabName'), '.blob.core.windows.net/vhds/SplunkDataDisk4.vhd')]"
+                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/SplunkDataDisk4.vhd')]"
               },
               "caching": "ReadOnly",
               "diskSizeGB": 1023
@@ -531,8 +474,8 @@
           ]
         },
         "osProfile": {
-          "computerName": "[parameters('vmLinName')]",
-          "adminUsername": "[parameters('admin')]",
+          "computerName": "[variables('SplunkName')]",
+          "adminUsername": "[parameters('LabAdmin')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": false
           },
@@ -547,7 +490,6 @@
       },
       "resources": [],
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('saLabName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('SplunkNic'))]"
       ],
       "tags": {
@@ -556,7 +498,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[variables('extensions_node_setup_name')]",
+      "name": "[concat(variables('SplunkName'), '/SplunkSetup')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -566,14 +508,14 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[variables('scriptUrl')]"
+            "[parameters('SplunkSetupScriptUrl')]"
           ],
-          "commandToExecute": "[variables('commandToExecute')]"
+          "commandToExecute": "[variables('SplunkSetupCmd')]"
         }
       },
       "resources": [],
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmLinName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('SplunkName'))]"
       ]
     }
   ],

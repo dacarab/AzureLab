@@ -23,6 +23,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 ## Work List
 
 1. ~~Add DSC functionality~~
+1. ~~Rationalise json template for Splunk~~
 1. Add report generated at end of deployment
 1. Finalise tests
 1. Update readme

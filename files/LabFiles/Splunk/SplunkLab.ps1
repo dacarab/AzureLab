@@ -28,9 +28,9 @@ Configuration DomainController {
         }
 
         xADDomain LabName.Local {
-            DomainAdministratorCredential = [PSCredential]$LabPassword
+            DomainAdministratorCredential = [PSCredential]$AdminCred
             DomainName = "$LabName.Local"
-            SafemodeAdministratorPassword = $LabPassword
+            SafemodeAdministratorPassword = $AdminCred
             DependsOn = "[WindowsFeature]AD-Domain-Services","[WindowsFeature]DNS"
         }
     }

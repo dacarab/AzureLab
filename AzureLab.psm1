@@ -7,7 +7,8 @@ $LabConfigData = @{
     LabFilesPath = $LabFilesPath
     Splunk = @{
         TemplatePath = "$LabFilesPath\Splunk\SplunkLab.json"
-        DomainController_DSCFunction = "DomainController"
-        DomainController_Script = "SplunkLab.ps1"
+        DomainControllerDscFunction = "DomainController"
+        DomainControllerDscScript = "SplunkLab.ps1"
+        LabAdmin = "SplunkAdmin"
     }
 }
