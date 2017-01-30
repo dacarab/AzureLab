@@ -18,7 +18,7 @@
     Write-Verbose "Lab template path: $($LabConfigData.$LabType.TemplatePath) "
     $deploymentState = New-AzureRmResourceGroupDeployment -ResourceGroupName $LabName -TemplateParameterObject $TemplateParamHash -TemplateFile $LabConfigData.$LabType.TemplatePath
 
-    Write-Verbose "-EXITING         _DeployArmTemplate           returning $dataToReturn"
+    Write-Verbose "-EXITING         _DeployArmTemplate           returning $deploymentState"
     $deploymentState
   }
 }

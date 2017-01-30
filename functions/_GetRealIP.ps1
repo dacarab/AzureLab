@@ -12,7 +12,7 @@
     }
     
     end {
-        $response = Invoke-WebRequest -Uri http://canihazip.com/s
+        $response = Invoke-WebRequest -Uri http://canihazip.com/s -DisableKeepAlive -UseBasicParsing
         $simpleIPParse = "^\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b$"
         If ($response.content -match $simpleIPParse ){
             $dataToReturn = $response.content

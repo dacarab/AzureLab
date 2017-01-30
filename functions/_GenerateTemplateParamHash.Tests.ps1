@@ -7,18 +7,20 @@ $targetFunction = $sut -replace '\.ps1', ''
 $LabName = "PesterTest"
 $LabType = "Splunk"
 $RealIP = "2.2.2.2"
-$ModulesUrl
+#$ModulesUrl
 $labpassword = ConvertTo-SecureString -String "P@55word" -AsPlainText -Force
 $blobInfo = @{File1 = @{uri = "www"; SasKey = "SomeSasKey"}}
+$storageAccount = "somestorageaccount"
 
 Describe "Private function $targetFunction Unit Tests" -tag unit {
     It "[Execution: ] Does not throw" {
-        {_GenerateTemplateParamHash -LabName $LabName -LabType $labType -RealIP $RealIP -LabPassword $labPassword -BlobInfo $blobInfo} | Should not throw
+        {_GenerateTemplateParamHash -LabName $LabName -LabType $labType -RealIP $RealIP -LabPassword $labPassword -BlobInfo $blobInfo -StorageAccount $storageAccount} |
+         Should not throw
     }
 
     # Need better checking on the output to ensure SasKey and uri are passed
     It "[Output:    ] returns a  hash" {
-        _GenerateTemplateParamHash -LabName $LabName -LabType $labType -RealIP $RealIP -LabPassword $labPassword -BlobInfo $blobInfo |
+        _GenerateTemplateParamHash -LabName $LabName -LabType $labType -RealIP $RealIP -LabPassword $labPassword -BlobInfo $blobInfo -StorageAccount $storageAccount |
          Should BeofType [HashTable]
     
   }

@@ -14,9 +14,9 @@
     "DomainControllerDscUri": {
       "type": "string"
     },
-/*    "DomainContollerDscSasToken": {
-      "type": "string"
-    },*/
+    /*    "DomainContollerDscSasToken": {
+          "type": "string"
+        },*/
     "LabName": {
       "type": "string"
     },
@@ -50,6 +50,7 @@
     "SplunkName": "splunk01",
     "SplunkNic": "SplunkNic",
     "SplunkPIP": "SplunkPIP",
+    "DomainControllerPIP" : "DomainControllerPIP",
     "LabSecurityGroup": "LabSecurityGroup",
     "SplunkSetupCmd": "sh splunk_setup.sh"
   },
@@ -82,7 +83,7 @@
       }
     },
     {
-      "name": "DomainController_PublicIP",
+      "name": "DomainControllerPIP",
       "type": "Microsoft.Network/publicIPAddresses",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -104,7 +105,7 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
-        "[concat('Microsoft.Network/publicIPAddresses/','DomainController_PublicIP')]"
+        "[concat('Microsoft.Network/publicIPAddresses/','DomainControllerPIP')]"
       ],
       "tags": {
         "displayName": "Virtual Nic for Windows VM"
@@ -118,7 +119,7 @@
               "id": "[variables('LabSubnetID')]"
             },
             "publicIPAddress": {
-              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'DomainController_PublicIP')]"
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'DomainControllerPIP')]"
             }
           }
         }]
@@ -159,18 +160,16 @@
             "caching": "ReadWrite",
             "createOption": "FromImage"
           },
-          "dataDisks": [
-            {
-              "lun": 0,
-              "name": "ActiveDirctoryDisk",
-              "createOption": "Empty",
-              "vhd": {
-                "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/ActiveDirectoryDisk.vhd')]"
-              },
-              "caching": "ReadOnly",
-              "diskSizeGB": 1023
-            }
-          ]
+          "dataDisks": [{
+            "lun": 0,
+            "name": "ActiveDirctoryDisk",
+            "createOption": "Empty",
+            "vhd": {
+              "uri": "[concat('http://', parameters('StorageAccount'), '.blob.core.windows.net/vhds/ActiveDirectoryDisk.vhd')]"
+            },
+            "caching": "ReadOnly",
+            "diskSizeGB": 1023
+          }]
         },
         "networkProfile": {
           "networkInterfaces": [{
@@ -225,7 +224,7 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', 'vnLab')]",
-      "[concat('Microsoft.Network/publicIPAddresses/', variables('SplunkPIP'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('SplunkPIP'))]"
       ],
       "tags": {
         "displayName": "Virtual Nic for Linux VM"
@@ -239,11 +238,11 @@
               "id": "[variables('LabSubnetID')]",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'SplunkPIP')]"
-                }
+              }
             },
             "publicIPAddress": {
               "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('SplunkPIP'))]"
-                     }
+            }
           }
         }]
       }
@@ -520,6 +519,14 @@
     }
   ],
   "outputs": {
+    "SplunkServerUrl": {
+      "type": "string",
+      "value": "[reference(variables('SplunkPIP')).dnsSettings.fqdn]"
+    },
+    "DomainControllerUrl": {
+      "type": "string",
+      "value": "[reference('DomainControllerPIP').dnsSettings.fqdn]"
+    }
 
   }
 }

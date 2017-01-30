@@ -25,6 +25,7 @@ A bare minimum of functionality required is one line provisioning / de-provision
 1. ~~Add DSC functionality~~
 1. ~~Rationalise json template for Splunk~~
 1. Add report generated at end of deployment
+1. Add option to deploy multiple windows boxes to Splunk template
 1. Finalise tests
 1. Update readme
 

@@ -91,15 +91,15 @@ end {
     BeforeAll {Copy-Item "$here\..\files\AzureRmLocations.xml" TestDrive:}
 
     # Mocks 
-    Mock _NewResourceGroup {} -AzureLab
-    Mock _NewStorageAccount {} -AzureLab
-    Mock _GetStorageAccountContext {} -AzureLab
-    Mock _UploadLabFiles {@{File1 = @{uri = "www"; SasKey = "SomeSasKey"}}} -AzureLab
-    Mock _GenerateTemplateParamHash {} -AzureLab
-    Mock _DeployArmTemplate {} -AzureLab
-    Mock _EnsureConnected {} -AzureLab
-    Mock _GetRealIP {"3.3.3.3"} -AzureLab
-    Mock Get-AzureRmLocation {[PSCustomObject]@{Location = "UKSouth"}} -AzureLab
+    Mock _NewResourceGroup {}
+    Mock _NewStorageAccount {@{StorageAccountName = "SomeStorageAccount"}}
+    Mock _GetStorageAccountContext {}
+    Mock _UploadLabFiles {@{File1 = @{uri = "www"; SasKey = "SomeSasKey"}}}
+    Mock _GenerateTemplateParamHash {}
+    Mock _DeployArmTemplate {}
+    Mock _EnsureConnected {}
+    Mock _GetRealIP {"3.3.3.3"}
+    Mock Get-AzureRmLocation {[PSCustomObject]@{Location = "UKSouth"}} 
 
     It "[Input:     ] Should Fail: <scenario>" -TestCases $failInputTest {
         param ($labName, $labType, $azureLocation, $labPassword, $expected)
