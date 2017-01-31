@@ -45,9 +45,9 @@
     },
     "variables": {
         "storageAccountName": "[uniquestring(resourceGroup().id)]",
-        "virtualNetworkName": "myVNET",
+        "virtualNetworkName": "LabVnet",
         "addressPrefix": "10.0.0.0/16",
-        "subnet1Name": "Subnet-1",
+        "subnet1Name": "LabSubnet",
         "subnet1Prefix": "10.0.0.0/24",
         "subnet1Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('virtualNetworkName'),variables('subnet1Name'))]",
         "availabilitySetName": "myAvSet",
@@ -56,7 +56,10 @@
             "offer": "WindowsServer",
             "sku": "2016-Datacenter",
             "version": "latest"
-        }
+        },
+        "DomainControllerName": "dc01",
+        "DomainControllerNic": "DomainControlerNic",
+        "DomainControllerPIP": "DomainControllerPIP"
     },
     "resources": [{
             "type": "Microsoft.Network/virtualNetworks",
@@ -101,7 +104,7 @@
                 }]
             }
         },
-                {
+        {
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[concat('myvm', copyIndex())]",
             "apiVersion": "2016-03-30",
