@@ -9,7 +9,6 @@ Describe "Private function $targetFunction Unit Tests" -tag unit {
     Mock New-AzureRmStorageAccount {}
     Mock Write-Warning {}
     Mock Get-AzureRmStorageAccountNameAvailability {[PSCustomObject]@{NameAvailable = $false}}
-    Mock Find-AzureRmResource {}
     Mock Read-Host {"y"}
 
     It "[Execution: ] Should throw if unable to create valid storage account name after 10 attempts" {

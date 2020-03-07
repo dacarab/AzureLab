@@ -7,7 +7,7 @@
 
 end {
     Describe "Private function $targetFunction Unit Tests" -tag unit {
-        Mock Get-AzureRmLocation {[PSCustomObject]@{Location = "UKSouth"}} -AzureLab
+        Mock Get-AzureRmLocation {[PSCustomObject]@{Location = "UKSouth"}}
 
         It "[Execution: ] Should add a dynamic parameter to the script" {
             $returnedData = _DynamicParamAzureLocation 

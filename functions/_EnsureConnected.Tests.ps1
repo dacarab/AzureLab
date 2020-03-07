@@ -12,7 +12,7 @@ end {
         Mock Get-AzureRmContext {$exception}
         It "[Execution: ] Prompt user to connect to Azure" {
             _EnsureConnected -verbose
-            Assert-VerifiableMocks 
+            Assert-VerifiableMock
         }
     }
 <#    Describe "Private function $targetFunction Unit Tests" -tag integration {
